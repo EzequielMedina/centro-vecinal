@@ -454,15 +454,81 @@ if (error) {
 
 ## 11. Git y Commits
 
-- Una feature → una branch con el nombre del spec (`001-autenticacion-admin`).
-- Commits pequeños y atómicos: un commit por task completada.
-- Formato de commit: `tipo(scope): descripción en español`
-  - `feat(avisos): agregar CRUD de avisos en panel admin`
-  - `fix(auth): corregir redirección post-login`
-  - `refactor(queries): extraer getAvisosDestacados a lib/queries`
-  - `test(contacto): agregar test de rate limiting`
+### Estrategia de branches — obligatoria
+
+El flujo de trabajo tiene tres niveles de branches:
+
+```
+main
+ └── 001-autenticacion-admin          ← branch de feature (del spec)
+      ├── task/001-T007-middleware     ← branch de task
+      ├── task/001-T012-login-page     ← branch de task
+      └── task/001-T020-layout-admin  ← branch de task
+```
+
+#### Regla: una task = una branch = un PR hacia la feature branch
+
+**Al iniciar cualquier task**, antes de escribir código:
+
+```bash
+# 1. Asegurarse de estar en la branch de feature y actualizada
+git checkout 001-autenticacion-admin
+git pull origin 001-autenticacion-admin
+
+# 2. Crear branch de task con el formato: task/[feature-id]-[task-id]-[descripcion-corta]
+git checkout -b task/001-T007-middleware
+```
+
+**Formato de nombre de branch de task:**
+```
+task/[###]-[TXXX]-[descripcion-en-kebab-case]
+
+Ejemplos:
+task/001-T007-middleware-proteccion-rutas
+task/003-T026-server-action-create-aviso
+task/005-T011-route-handler-upload-imagen
+```
+
+**Al completar la task:**
+```bash
+# Commit con formato convencional
+git add <archivos-relevantes>
+git commit -m "feat(auth): implementar middleware de protección de rutas /admin/*"
+
+# Push y merge a la feature branch (sin PR externo necesario — merge directo local)
+git checkout 001-autenticacion-admin
+git merge task/001-T007-middleware --no-ff
+git push origin 001-autenticacion-admin
+
+# Eliminar la branch de task una vez mergeada
+git branch -d task/001-T007-middleware
+```
+
+**Al completar TODA la feature**, abrir PR de la feature branch hacia `main`:
+```bash
+gh pr create --base main --head 001-autenticacion-admin \
+  --title "feat: autenticación de administradores" \
+  --body "Implementa login, middleware de protección, logout y gestión de usuarios admin."
+```
+
+### Formato de commits
+
+```
+tipo(scope): descripción en español
+
+feat(avisos): agregar CRUD de avisos en panel admin
+fix(auth): corregir redirección post-login
+refactor(queries): extraer getAvisosDestacados a lib/queries
+test(contacto): agregar test de rate limiting
+chore(deps): instalar @tiptap/react y extensiones
+```
+
+### Otras reglas
+
 - Nunca commitear `.env.local` ni archivos con credenciales.
 - Nunca hacer `git push --force` a `main`.
+- Nunca trabajar directamente en `main`.
+- Commits pequeños y atómicos: un commit por task completada.
 
 ---
 
