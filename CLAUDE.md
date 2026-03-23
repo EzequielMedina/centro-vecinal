@@ -459,11 +459,12 @@ if (error) {
 El flujo de trabajo tiene tres niveles de branches:
 
 ```
-main
- └── 001-autenticacion-admin          ← branch de feature (del spec)
-      ├── task/001-T007-middleware     ← branch de task
-      ├── task/001-T012-login-page     ← branch de task
-      └── task/001-T020-layout-admin  ← branch de task
+main                                   ← producción
+ └── develop                           ← integración
+      └── 001-autenticacion-admin      ← branch de feature (del spec)
+           ├── task/001-T007-middleware     ← branch de task
+           ├── task/001-T012-login-page     ← branch de task
+           └── task/001-T020-layout-admin   ← branch de task
 ```
 
 #### Regla: una task = una branch = un PR hacia la feature branch
@@ -504,9 +505,9 @@ git push origin 001-autenticacion-admin
 git branch -d task/001-T007-middleware
 ```
 
-**Al completar TODA la feature**, abrir PR de la feature branch hacia `main`:
+**Al completar TODA la feature**, abrir PR de la feature branch hacia `develop`:
 ```bash
-gh pr create --base main --head 001-autenticacion-admin \
+gh pr create --base develop --head 001-autenticacion-admin \
   --title "feat: autenticación de administradores" \
   --body "Implementa login, middleware de protección, logout y gestión de usuarios admin."
 ```
