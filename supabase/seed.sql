@@ -106,3 +106,60 @@ INSERT INTO public.avisos (id, titulo, slug, contenido, destacado, activo, creat
   NOW() - INTERVAL '10 days'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ── Actividades de prueba ─────────────────────────────────────
+
+INSERT INTO public.actividades (id, titulo, slug, descripcion, fecha_inicio, fecha_fin, ubicacion, capacidad, categoria, activa, autor_id) VALUES
+(
+  '20000000-0000-0000-0000-000000000001',
+  'Taller de cerámica para adultos',
+  'taller-ceramica-adultos',
+  '<p>Aprendé técnicas de modelado en arcilla con la instructora Marta Gómez. No se requiere experiencia previa.</p><ul><li>Materiales incluidos</li><li>Grupos reducidos</li></ul>',
+  NOW() + INTERVAL '7 days',
+  NOW() + INTERVAL '7 days' + INTERVAL '2 hours',
+  'Salón de usos múltiples — Centro Vecinal',
+  20,
+  'taller',
+  true,
+  '00000000-0000-0000-0000-000000000001'
+),
+(
+  '20000000-0000-0000-0000-000000000002',
+  'Apoyo escolar matemáticas — nivel secundario',
+  'apoyo-escolar-matematicas-secundario',
+  '<p>Clases de apoyo en matemáticas para alumnos de secundaria. Dictadas por docentes voluntarios del barrio.</p><p><strong>Horarios:</strong> Martes y jueves de 17:00 a 19:00 hs.</p>',
+  NOW() + INTERVAL '2 days',
+  NULL,
+  'Aula 1 — Centro Vecinal',
+  15,
+  'apoyo-estudiantil',
+  true,
+  '00000000-0000-0000-0000-000000000001'
+),
+(
+  '20000000-0000-0000-0000-000000000003',
+  'Torneo de fútbol barrial',
+  'torneo-futbol-barrial',
+  '<p>Torneo de fútbol 5 para vecinos del barrio. Inscripción por equipos de 6 jugadores.</p>',
+  NOW() - INTERVAL '10 days',
+  NOW() - INTERVAL '10 days' + INTERVAL '4 hours',
+  'Cancha municipal — Av. San Martín 1200',
+  NULL,
+  'deporte',
+  true,
+  '00000000-0000-0000-0000-000000000001'
+),
+(
+  '20000000-0000-0000-0000-000000000004',
+  'Actividad inactiva de prueba',
+  'actividad-inactiva-prueba',
+  '<p>Esta actividad no debe verse en el sitio público.</p>',
+  NOW() + INTERVAL '30 days',
+  NULL,
+  'Sin ubicación',
+  NULL,
+  'otro',
+  false,
+  '00000000-0000-0000-0000-000000000001'
+)
+ON CONFLICT (id) DO NOTHING;

@@ -15,24 +15,28 @@ export function slugify(texto: string): string {
 export async function uniqueSlug(
   titulo: string,
   supabase: SupabaseClient,
-  excludeId?: string
+  excludeId?: string,
+  tabla: string = "avisos"
 ): Promise<string> {
-  const base = slugify(titulo) || `aviso-${Date.now()}`
+  const base = slugify(titulo) || `${tabla}-${Date.now()}`
 
-  const { data } = await supabase
-    .from("avisos")
+  const { data, error } = await supabase
+    .from(tabla)
     .select("slug")
     .like("slug", `${base}%`)
+
+  if (error) throw new Error(`Error al verificar slugs existentes en ${tabla}`)
 
   const existingSlugs = new Set((data ?? []).map((r) => r.slug))
 
   // Excluir el propio registro al editar
   if (excludeId) {
-    const { data: own } = await supabase
-      .from("avisos")
+    const { data: own, error: ownError } = await supabase
+      .from(tabla)
       .select("slug")
       .eq("id", excludeId)
       .single()
+    if (ownError && ownError.code !== "PGRST116") throw new Error(`Error al verificar slug propio en ${tabla}`)
     if (own) existingSlugs.delete(own.slug)
   }
 
