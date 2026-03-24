@@ -533,6 +533,41 @@ chore(deps): instalar @tiptap/react y extensiones
 
 ---
 
+## 13. Migraciones de Supabase — Reglas críticas
+
+### Nunca modificar migraciones ya aplicadas
+
+Una vez que una migración fue aplicada (local o en producción), **no se modifica**. Cualquier cambio de esquema va en un archivo nuevo:
+
+```bash
+# Crear nueva migración
+supabase migration new nombre-descriptivo
+# Genera: supabase/migrations/YYYYMMDDHHMMSS_nombre-descriptivo.sql
+```
+
+### Aplicar migraciones sin perder datos
+
+```bash
+# Aplica solo las migraciones nuevas — NO borra datos
+supabase migration up
+```
+
+### `supabase db reset` — cuándo usarlo y cuándo NO
+
+| Comando | Efecto sobre datos | Cuándo usarlo |
+|---------|-------------------|---------------|
+| `npm run dev` | Ninguno | Siempre para reiniciar el servidor |
+| `supabase migration up` | Ninguno | Para aplicar migraciones nuevas |
+| `supabase db reset` | **Borra todo y re-seedea** | Solo en dev cuando algo está roto o hay conflictos irresolubles |
+
+`supabase db reset` **elimina todos los datos** y replay todas las migraciones + seed desde cero. Usar solo como último recurso en desarrollo.
+
+### Datos de prueba persistentes
+
+Si un dato de prueba debe sobrevivir a un `db reset`, agregarlo a `supabase/seed.sql`. Los datos creados desde la UI no persisten ante un reset.
+
+---
+
 ## 12. Checklist antes de dar una tarea por terminada
 
 Antes de considerar cualquier task completada, verificar:
