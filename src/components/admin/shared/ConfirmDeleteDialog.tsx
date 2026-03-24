@@ -32,6 +32,8 @@ export function ConfirmDeleteDialog({
   const triggerWithHandler = isValidElement(trigger)
     ? cloneElement(trigger as React.ReactElement<React.HTMLAttributes<HTMLElement>>, {
         onClick: (e: React.MouseEvent) => {
+          const originalOnClick = (trigger.props as React.HTMLAttributes<HTMLElement>).onClick
+          if (originalOnClick) originalOnClick(e as React.MouseEvent<HTMLElement>)
           e.stopPropagation()
           if (!disabled) setOpen(true)
         },

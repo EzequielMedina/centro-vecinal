@@ -44,10 +44,26 @@ CREATE POLICY "lectura publica avisos activos"
   FOR SELECT
   USING (activo = true);
 
--- Escritura: solo usuarios autenticados (admins)
+-- Escritura: solo usuarios registrados en admin_users
 CREATE POLICY "admins pueden escribir avisos"
   ON public.avisos
   FOR ALL
   TO authenticated
-  USING (true)
-  WITH CHECK (true);
+  USING (EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid()))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid()));
+
+-- ── Storage policies (bucket: avisos) ────────────────────────
+
+-- Lectura pública de archivos del bucket avisos
+CREATE POLICY "lectura publica storage avisos"
+  ON storage.objects
+  FOR SELECT
+  USING (bucket_id = 'avisos');
+
+-- Subida/eliminación solo para admins
+CREATE POLICY "admins pueden escribir storage avisos"
+  ON storage.objects
+  FOR ALL
+  TO authenticated
+  USING (bucket_id = 'avisos' AND EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid()))
+  WITH CHECK (bucket_id = 'avisos' AND EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid()));

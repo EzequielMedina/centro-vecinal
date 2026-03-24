@@ -17,6 +17,16 @@ async function requireAuth() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("No autorizado")
+
+  // Verificar que el usuario pertenece a admin_users
+  const { data: adminRow } = await supabase
+    .from("admin_users")
+    .select("id")
+    .eq("id", user.id)
+    .single()
+
+  if (!adminRow) throw new Error("No autorizado")
+
   return { supabase, userId: user.id }
 }
 
@@ -33,23 +43,31 @@ async function uploadImage(
     throw new Error("La imagen no puede superar los 5 MB.")
   }
 
-  // Eliminar imagen anterior si existía
-  if (oldUrl) {
-    const path = oldUrl.split("/avisos/")[1]
-    if (path) await supabase.storage.from("avisos").remove([path])
-  }
-
   const ext = file.type.split("/")[1]
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
+  // Subir primero; solo si el upload fue exitoso, eliminar la imagen anterior
   const { error } = await supabase.storage
     .from("avisos")
     .upload(filename, file, { contentType: file.type })
 
   if (error) throw new Error("Error al subir la imagen")
 
+  if (oldUrl) {
+    const path = oldUrl.split("/avisos/")[1]
+    if (path) await supabase.storage.from("avisos").remove([path])
+  }
+
   const { data } = supabase.storage.from("avisos").getPublicUrl(filename)
   return data.publicUrl
+}
+
+async function deleteStorageImage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  url: string
+) {
+  const path = url.split("/avisos/")[1]
+  if (path) await supabase.storage.from("avisos").remove([path])
 }
 
 async function checkMaxDestacados(
@@ -64,7 +82,13 @@ async function checkMaxDestacados(
 
   if (excludeId) query.neq("id", excludeId)
 
-  const { count } = await query
+  const { count, error } = await query
+
+  if (error) {
+    console.error("[checkMaxDestacados]", error.message)
+    return false
+  }
+
   return (count ?? 0) < 3
 }
 
@@ -87,7 +111,8 @@ export async function createAviso(formData: FormData): Promise<ActionResult> {
 
     const { titulo, contenido, destacado, activo } = parsed.data
 
-    if (destacado) {
+    // Solo validar el límite si el aviso va a quedar activo y destacado
+    if (destacado && activo) {
       const canDestacado = await checkMaxDestacados(supabase)
       if (!canDestacado) {
         return { error: "Ya hay 3 avisos destacados activos. Desactivá uno antes de destacar otro." }
@@ -151,7 +176,8 @@ export async function updateAviso(
 
     const { titulo, contenido, destacado, activo } = parsed.data
 
-    if (destacado) {
+    // Solo validar el límite si el aviso va a quedar activo y destacado
+    if (destacado && activo) {
       const canDestacado = await checkMaxDestacados(supabase, id)
       if (!canDestacado) {
         return { error: "Ya hay 3 avisos destacados activos. Desactivá uno antes de destacar otro." }
@@ -175,10 +201,16 @@ export async function updateAviso(
 
     const contenidoSeguro = sanitizeHtml(contenido)
 
+    // Determinar imagen final
     let imagen_url = current.imagen_url
     const imageFile = formData.get("imagen") as File | null
+    const removeImage = formData.get("remove_image") === "true"
+
     if (imageFile && imageFile.size > 0) {
       imagen_url = await uploadImage(supabase, imageFile, current.imagen_url)
+    } else if (removeImage && current.imagen_url) {
+      await deleteStorageImage(supabase, current.imagen_url)
+      imagen_url = null
     }
 
     const { error } = await supabase
@@ -223,8 +255,7 @@ export async function deleteAviso(id: string): Promise<ActionResult> {
 
     // Eliminar imagen de Storage si existía
     if (aviso?.imagen_url) {
-      const path = aviso.imagen_url.split("/avisos/")[1]
-      if (path) await supabase.storage.from("avisos").remove([path])
+      await deleteStorageImage(supabase, aviso.imagen_url)
     }
 
     revalidatePath("/avisos")
@@ -244,6 +275,22 @@ export async function toggleActivo(
 ): Promise<ActionResult> {
   try {
     const { supabase } = await requireAuth()
+
+    // Al activar, verificar si el aviso es destacado y si se superaría el límite
+    if (activo) {
+      const { data: aviso } = await supabase
+        .from("avisos")
+        .select("destacado")
+        .eq("id", id)
+        .single()
+
+      if (aviso?.destacado) {
+        const canDestacado = await checkMaxDestacados(supabase, id)
+        if (!canDestacado) {
+          return { error: "Ya hay 3 avisos destacados activos. Desactivá uno antes de activar este." }
+        }
+      }
+    }
 
     const { error } = await supabase
       .from("avisos")
