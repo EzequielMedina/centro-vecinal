@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useRef } from "react"
+import { useState, useTransition, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import Image from "next/image"
@@ -32,18 +32,25 @@ export function AvisoForm({ aviso }: Props) {
   // true cuando se quitó una imagen que ya estaba guardada (no es blob)
   const [removeImage, setRemoveImage] = useState(false)
   const blobUrlRef = useRef<string | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  // Guardar el File para incluirlo en FormData aunque el input esté desmontado
+  const selectedFileRef = useRef<File | null>(null)
   const isEdit = !!aviso
+
+  // Revocar blob URL al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
+    }
+  }, [])
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     // Revocar blob URL anterior si había uno
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-    }
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
     const url = URL.createObjectURL(file)
     blobUrlRef.current = url
+    selectedFileRef.current = file
     setImagePreview(url)
     setRemoveImage(false)
   }
@@ -54,12 +61,12 @@ export function AvisoForm({ aviso }: Props) {
       URL.revokeObjectURL(blobUrlRef.current)
       blobUrlRef.current = null
     }
+    selectedFileRef.current = null
     // Si había una imagen guardada, marcar para eliminarla en el servidor
     if (aviso?.imagen_url && imagePreview === aviso.imagen_url) {
       setRemoveImage(true)
     }
     setImagePreview(null)
-    if (fileRef.current) fileRef.current.value = ""
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -68,6 +75,12 @@ export function AvisoForm({ aviso }: Props) {
 
     const formData = new FormData(e.currentTarget)
     formData.set("contenido", contenido)
+
+    // El input file puede estar desmontado si hay preview — adjuntar el archivo manualmente
+    if (selectedFileRef.current) {
+      formData.set("imagen", selectedFileRef.current)
+    }
+
     if (removeImage) formData.set("remove_image", "true")
 
     startTransition(async () => {
@@ -141,7 +154,6 @@ export function AvisoForm({ aviso }: Props) {
           </div>
         ) : (
           <Input
-            ref={fileRef}
             id="imagen"
             name="imagen"
             type="file"

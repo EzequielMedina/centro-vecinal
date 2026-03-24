@@ -259,6 +259,7 @@ export async function deleteAviso(id: string): Promise<ActionResult> {
     }
 
     revalidatePath("/avisos")
+    if (aviso?.slug) revalidatePath(`/avisos/${aviso.slug}`)
     revalidatePath("/admin/avisos")
     revalidatePath("/")
     return { success: true }
