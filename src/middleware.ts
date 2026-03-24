@@ -25,8 +25,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Excluir archivos estáticos y rutas internas de Next.js
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  // Solo ejecutar el middleware en rutas del panel admin
+  matcher: ["/admin/:path*"],
 }

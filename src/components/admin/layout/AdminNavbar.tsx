@@ -1,13 +1,11 @@
-import { createClient } from "@/lib/supabase/server"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-export async function AdminNavbar({ title }: { title?: string }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+type Props = {
+  title?: string
+  nombre: string
+}
 
-  const nombre = user?.user_metadata?.nombre ?? user?.email ?? "Admin"
+export function AdminNavbar({ title, nombre }: Props) {
   const initials = nombre
     .split(" ")
     .map((n: string) => n[0])

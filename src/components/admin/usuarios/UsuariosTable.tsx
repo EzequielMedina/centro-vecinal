@@ -37,11 +37,13 @@ export function UsuariosTable({ usuarios, currentUserId }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   function handleDelete(id: string) {
+    setError(null)
     startTransition(async () => {
       const result = await deleteAdmin(id)
       if ("error" in result) {
         setError(result.error)
       } else {
+        setError(null)
         router.refresh()
       }
     })

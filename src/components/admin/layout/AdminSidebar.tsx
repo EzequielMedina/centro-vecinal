@@ -79,7 +79,7 @@ export function AdminSidebar() {
             href={href}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-              pathname === href
+              pathname === href || pathname.startsWith(href + "/")
                 ? "bg-primary-foreground/15 text-primary-foreground"
                 : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
             )}

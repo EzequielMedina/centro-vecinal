@@ -74,7 +74,11 @@ export async function createAdmin(formData: FormData): Promise<ActionResult> {
 
     if (dbError) {
       // Rollback: eliminar de Auth si falla el INSERT
-      await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+      const { error: rollbackError } = await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+      if (rollbackError) {
+        // El usuario quedó en Auth sin perfil — requiere limpieza manual
+        console.error("[createAdmin] rollback failed — orphan user in Auth:", authData.user.id, rollbackError.message)
+      }
       console.error("[createAdmin] db error:", dbError.message)
       return { error: "Error al crear el usuario" }
     }
