@@ -34,6 +34,7 @@ export function RichTextEditor({ value, onChange, disabled }: Props) {
       }),
     ],
     content: value ?? "",
+    immediatelyRender: false,
     editable: !disabled,
     onUpdate({ editor }) {
       onChange(editor.getHTML())
