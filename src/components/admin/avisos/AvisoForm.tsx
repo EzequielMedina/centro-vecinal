@@ -27,18 +27,37 @@ export function AvisoForm({ aviso }: Props) {
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
   const [contenido, setContenido] = useState(aviso?.contenido ?? "")
+  // imagePreview: blob URL (nueva imagen) | string URL (imagen guardada) | null (sin imagen)
   const [imagePreview, setImagePreview] = useState<string | null>(aviso?.imagen_url ?? null)
+  // true cuando se quitó una imagen que ya estaba guardada (no es blob)
+  const [removeImage, setRemoveImage] = useState(false)
+  const blobUrlRef = useRef<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const isEdit = !!aviso
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    // Revocar blob URL anterior si había uno
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current)
+    }
     const url = URL.createObjectURL(file)
+    blobUrlRef.current = url
     setImagePreview(url)
+    setRemoveImage(false)
   }
 
   function handleRemoveImage() {
+    // Revocar blob URL si la imagen era recién seleccionada
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current)
+      blobUrlRef.current = null
+    }
+    // Si había una imagen guardada, marcar para eliminarla en el servidor
+    if (aviso?.imagen_url && imagePreview === aviso.imagen_url) {
+      setRemoveImage(true)
+    }
     setImagePreview(null)
     if (fileRef.current) fileRef.current.value = ""
   }
@@ -49,6 +68,7 @@ export function AvisoForm({ aviso }: Props) {
 
     const formData = new FormData(e.currentTarget)
     formData.set("contenido", contenido)
+    if (removeImage) formData.set("remove_image", "true")
 
     startTransition(async () => {
       const result = isEdit
@@ -63,6 +83,8 @@ export function AvisoForm({ aviso }: Props) {
       }
     })
   }
+
+  const isBlob = imagePreview?.startsWith("blob:")
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
@@ -100,7 +122,14 @@ export function AvisoForm({ aviso }: Props) {
         <Label>Imagen (opcional)</Label>
         {imagePreview ? (
           <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-input bg-muted">
-            <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+            <Image
+              src={imagePreview}
+              alt="Preview"
+              fill
+              className="object-cover"
+              // Los blob URLs son locales — no pasan por el optimizador de Next.js
+              unoptimized={isBlob}
+            />
             <button
               type="button"
               onClick={handleRemoveImage}

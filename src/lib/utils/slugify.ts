@@ -17,7 +17,7 @@ export async function uniqueSlug(
   supabase: SupabaseClient,
   excludeId?: string
 ): Promise<string> {
-  const base = slugify(titulo)
+  const base = slugify(titulo) || `aviso-${Date.now()}`
 
   const { data } = await supabase
     .from("avisos")
