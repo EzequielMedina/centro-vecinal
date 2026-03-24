@@ -24,16 +24,20 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(LoginSchema),
   })
 
+  const email = watch("email")
+  const password = watch("password")
+
   // Limpiar error de servidor al re-editar los campos
   useEffect(() => {
     if (serverError) setServerError(null)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [email, password])
 
   const onSubmit = async (_data: LoginInput) => {
     if (!formRef.current) return

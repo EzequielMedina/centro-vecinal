@@ -23,12 +23,12 @@ async function requireSuperAdmin() {
 
   if (adminUser?.rol !== "superadmin") throw new Error("Acceso denegado")
 
-  return { supabase, currentUserId: user.id }
+  return { currentUserId: user.id }
 }
 
 export async function createAdmin(formData: FormData): Promise<ActionResult> {
   try {
-    const { supabase } = await requireSuperAdmin()
+    await requireSuperAdmin()
 
     const parsed = CreateAdminSchema.safeParse({
       nombre: formData.get("nombre"),
@@ -98,20 +98,13 @@ export async function deleteAdmin(id: string): Promise<ActionResult> {
     }
 
     const supabaseAdmin = createAdminClient()
-    const { error: dbError } = await supabaseAdmin
-      .from("admin_users")
-      .delete()
-      .eq("id", id)
 
-    if (dbError) {
-      console.error("[deleteAdmin] db error:", dbError.message)
-      return { error: "Error al eliminar el usuario" }
-    }
-
+    // Eliminar primero de Auth — el ON DELETE CASCADE en admin_users lo limpia solo
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id)
 
     if (authError) {
       console.error("[deleteAdmin] auth error:", authError.message)
+      return { error: "Error al eliminar el usuario" }
     }
 
     revalidatePath("/admin/usuarios")

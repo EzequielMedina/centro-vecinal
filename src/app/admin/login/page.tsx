@@ -40,7 +40,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             {/* Suspense requerido por useSearchParams */}
-            <Suspense>
+            <Suspense fallback={null}>
               <LoginForm />
             </Suspense>
           </CardContent>

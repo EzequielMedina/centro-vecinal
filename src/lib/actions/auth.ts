@@ -30,7 +30,12 @@ export async function signIn(
     return { error: "Credenciales incorrectas" }
   }
 
-  const redirectTo = formData.get("redirect")?.toString() ?? "/admin/dashboard"
+  // Validar redirect para evitar open-redirect: solo paths internos bajo /admin
+  const rawRedirect = formData.get("redirect")?.toString() ?? ""
+  const redirectTo =
+    rawRedirect.startsWith("/admin") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/admin/dashboard"
   redirect(redirectTo)
 }
 
