@@ -1,0 +1,124 @@
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { CreateAdminSchema } from "@/lib/validations/usuarios"
+
+type ActionResult = { success: true } | { error: string }
+
+async function requireSuperAdmin() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("No autorizado")
+
+  const { data: adminUser } = await supabase
+    .from("admin_users")
+    .select("rol")
+    .eq("id", user.id)
+    .single()
+
+  if (adminUser?.rol !== "superadmin") throw new Error("Acceso denegado")
+
+  return { currentUserId: user.id }
+}
+
+export async function createAdmin(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireSuperAdmin()
+
+    const parsed = CreateAdminSchema.safeParse({
+      nombre: formData.get("nombre"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      rol: formData.get("rol"),
+    })
+
+    if (!parsed.success) {
+      const firstError = Object.values(
+        parsed.error.flatten().fieldErrors
+      )[0]?.[0]
+      return { error: firstError ?? "Datos inválidos" }
+    }
+
+    const { nombre, email, password, rol } = parsed.data
+
+    const supabaseAdmin = createAdminClient()
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { nombre },
+      })
+
+    if (authError) {
+      // Código 422 indica email ya registrado (más robusto que comparar el mensaje)
+      if (authError.status === 422) {
+        return { error: "Ya existe un usuario con ese email" }
+      }
+      console.error("[createAdmin] auth error:", authError.status, authError.message)
+      return { error: "Error al crear el usuario" }
+    }
+
+    // Usar supabaseAdmin para el INSERT: la política RLS exige service_role en escritura
+    const { error: dbError } = await supabaseAdmin.from("admin_users").insert({
+      id: authData.user.id,
+      email,
+      nombre,
+      rol,
+    })
+
+    if (dbError) {
+      // Rollback: eliminar de Auth si falla el INSERT
+      const { error: rollbackError } = await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+      if (rollbackError) {
+        // El usuario quedó en Auth sin perfil — requiere limpieza manual
+        console.error("[createAdmin] rollback failed — orphan user in Auth:", authData.user.id, rollbackError.message)
+      }
+      console.error("[createAdmin] db error:", dbError.message)
+      return { error: "Error al crear el usuario" }
+    }
+
+    revalidatePath("/admin/usuarios")
+    return { success: true }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : ""
+    if (msg === "No autorizado" || msg === "Acceso denegado") {
+      return { error: msg }
+    }
+    return { error: "Error al crear el usuario" }
+  }
+}
+
+export async function deleteAdmin(id: string): Promise<ActionResult> {
+  try {
+    const { currentUserId } = await requireSuperAdmin()
+
+    if (id === currentUserId) {
+      return { error: "No podés eliminarte a vos mismo" }
+    }
+
+    const supabaseAdmin = createAdminClient()
+
+    // Eliminar primero de Auth — el ON DELETE CASCADE en admin_users lo limpia solo
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id)
+
+    if (authError) {
+      console.error("[deleteAdmin] auth error:", authError.message)
+      return { error: "Error al eliminar el usuario" }
+    }
+
+    revalidatePath("/admin/usuarios")
+    return { success: true }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : ""
+    if (msg === "No autorizado" || msg === "Acceso denegado") {
+      return { error: msg }
+    }
+    return { error: "Error al eliminar el usuario" }
+  }
+}
