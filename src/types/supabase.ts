@@ -34,6 +34,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      actividades: {
+        Row: {
+          activa: boolean
+          autor_id: string | null
+          capacidad: number | null
+          categoria: string
+          created_at: string
+          descripcion: string
+          fecha_fin: string | null
+          fecha_inicio: string
+          id: string
+          imagen_url: string | null
+          slug: string
+          titulo: string
+          ubicacion: string
+          updated_at: string
+        }
+        Insert: {
+          activa?: boolean
+          autor_id?: string | null
+          capacidad?: number | null
+          categoria: string
+          created_at?: string
+          descripcion: string
+          fecha_fin?: string | null
+          fecha_inicio: string
+          id?: string
+          imagen_url?: string | null
+          slug: string
+          titulo: string
+          ubicacion?: string
+          updated_at?: string
+        }
+        Update: {
+          activa?: boolean
+          autor_id?: string | null
+          capacidad?: number | null
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          imagen_url?: string | null
+          slug?: string
+          titulo?: string
+          ubicacion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
