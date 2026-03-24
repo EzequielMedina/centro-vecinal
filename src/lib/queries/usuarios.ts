@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import type { Database } from "@/types/supabase"
 
@@ -5,7 +6,8 @@ export type AdminUser =
   Database["public"]["Tables"]["admin_users"]["Row"]
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
-  const supabase = await createClient()
+  // Usa service_role para bypassear RLS y ver todos los usuarios
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from("admin_users")
     .select("*")

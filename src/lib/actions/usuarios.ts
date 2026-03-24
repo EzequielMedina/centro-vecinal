@@ -63,7 +63,8 @@ export async function createAdmin(formData: FormData): Promise<ActionResult> {
       return { error: "Error al crear el usuario" }
     }
 
-    const { error: dbError } = await supabase.from("admin_users").insert({
+    // Usar supabaseAdmin para el INSERT: la política RLS exige service_role en escritura
+    const { error: dbError } = await supabaseAdmin.from("admin_users").insert({
       id: authData.user.id,
       email,
       nombre,
@@ -90,13 +91,14 @@ export async function createAdmin(formData: FormData): Promise<ActionResult> {
 
 export async function deleteAdmin(id: string): Promise<ActionResult> {
   try {
-    const { supabase, currentUserId } = await requireSuperAdmin()
+    const { currentUserId } = await requireSuperAdmin()
 
     if (id === currentUserId) {
       return { error: "No podés eliminarte a vos mismo" }
     }
 
-    const { error: dbError } = await supabase
+    const supabaseAdmin = createAdminClient()
+    const { error: dbError } = await supabaseAdmin
       .from("admin_users")
       .delete()
       .eq("id", id)
@@ -106,7 +108,6 @@ export async function deleteAdmin(id: string): Promise<ActionResult> {
       return { error: "Error al eliminar el usuario" }
     }
 
-    const supabaseAdmin = createAdminClient()
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id)
 
     if (authError) {
