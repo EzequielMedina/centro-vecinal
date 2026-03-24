@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { motion, useInView } from "framer-motion"
+import { motion, useInView, useReducedMotion } from "framer-motion"
 
 type Props = {
   children: React.ReactNode
@@ -12,6 +12,7 @@ type Props = {
 export function SectionReveal({ children, className, delay = 0 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const reducedMotion = useReducedMotion()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -23,11 +24,11 @@ export function SectionReveal({ children, className, delay = 0 }: Props) {
       ref={ref}
       className={className}
       // initial=false → no aplica estilos inline en SSR, sin hydration mismatch
-      // Antes de montar: sin animate → contenido visible
+      // Antes de montar o con prefers-reduced-motion: sin animate → contenido visible
       // Después de montar: fade+slide según isInView
       initial={false}
       animate={
-        !mounted
+        !mounted || reducedMotion
           ? {}
           : isInView
           ? { opacity: 1, y: 0 }

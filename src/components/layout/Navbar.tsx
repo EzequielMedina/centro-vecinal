@@ -61,6 +61,8 @@ export function Navbar() {
           className="md:hidden p-2 rounded-lg hover:bg-primary-foreground/10 transition-colors"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -68,7 +70,7 @@ export function Navbar() {
 
       {/* Menú mobile */}
       {open && (
-        <nav className="md:hidden border-t border-primary-foreground/10 px-4 py-3 space-y-1 bg-primary">
+        <nav id="mobile-nav" className="md:hidden border-t border-primary-foreground/10 px-4 py-3 space-y-1 bg-primary">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}

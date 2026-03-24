@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import * as LucideIcons from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { EmptyStateCard } from "@/components/home/EmptyStateCard"
 import type { Servicio } from "@/lib/queries/servicios"
 
@@ -8,10 +9,14 @@ type Props = {
   servicios: Servicio[]
 }
 
+function isLucideIcon(value: unknown): value is LucideIcon {
+  return typeof value === "function"
+}
+
 function ServicioIcon({ nombre }: { nombre: string }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Icon = (LucideIcons as Record<string, any>)[nombre] as React.ComponentType<{ size?: number; className?: string }> | undefined
-  if (!Icon) return <LucideIcons.Circle size={24} className="text-primary" />
+  const maybeIcon = (LucideIcons as Record<string, unknown>)[nombre]
+  if (!isLucideIcon(maybeIcon)) return <LucideIcons.Circle size={24} className="text-primary" />
+  const Icon = maybeIcon
   return <Icon size={24} className="text-primary" />
 }
 
