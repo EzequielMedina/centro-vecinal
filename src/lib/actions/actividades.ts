@@ -187,6 +187,8 @@ export async function updateActividad(id: string, formData: FormData): Promise<A
 
     revalidatePath("/actividades")
     revalidatePath(`/actividades/${slug}`)
+    // Invalidar slug anterior si cambió el título (evita que la ruta vieja sirva contenido cacheado)
+    if (current.slug !== slug) revalidatePath(`/actividades/${current.slug}`)
     revalidatePath("/admin/actividades")
     revalidatePath("/")
     return { success: true }
@@ -236,6 +238,12 @@ export async function toggleActiva(id: string, activa: boolean): Promise<ActionR
   try {
     const { supabase } = await requireAuth()
 
+    const { data: actividad } = await supabase
+      .from("actividades")
+      .select("slug")
+      .eq("id", id)
+      .single()
+
     const { error } = await supabase.from("actividades").update({ activa }).eq("id", id)
 
     if (error) {
@@ -244,6 +252,7 @@ export async function toggleActiva(id: string, activa: boolean): Promise<ActionR
     }
 
     revalidatePath("/actividades")
+    if (actividad?.slug) revalidatePath(`/actividades/${actividad.slug}`)
     revalidatePath("/admin/actividades")
     return { success: true }
   } catch (e) {
