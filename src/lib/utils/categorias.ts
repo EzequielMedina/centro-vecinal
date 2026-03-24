@@ -15,5 +15,6 @@ export const CATEGORIAS: Categoria[] = [
 ]
 
 export function getCategoriaInfo(value: string): Categoria {
-  return CATEGORIAS.find((c) => c.value === value) ?? CATEGORIAS[4]
+  const defaultCategoria = CATEGORIAS.find((c) => c.value === "otro") ?? CATEGORIAS[0]
+  return CATEGORIAS.find((c) => c.value === value) ?? defaultCategoria
 }

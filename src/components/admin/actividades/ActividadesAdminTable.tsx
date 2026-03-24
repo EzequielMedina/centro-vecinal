@@ -101,7 +101,7 @@ export function ActividadesAdminTable({ actividades }: Props) {
             ) : (
               filtradas.map((actividad) => {
                 const cat = getCategoriaInfo(actividad.categoria)
-                const esPasada = new Date(actividad.fecha_inicio) < new Date()
+                const esPasada = new Date(actividad.fecha_fin ?? actividad.fecha_inicio) < new Date()
                 return (
                   <TableRow key={actividad.id}>
                     <TableCell className="font-medium max-w-xs truncate">

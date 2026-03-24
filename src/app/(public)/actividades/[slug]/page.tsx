@@ -39,7 +39,7 @@ export default async function ActividadDetallePage({ params, searchParams }: Pro
   if (!actividad) notFound()
 
   const cat = getCategoriaInfo(actividad.categoria)
-  const esPasada = new Date(actividad.fecha_inicio) < new Date()
+  const esPasada = new Date(actividad.fecha_fin ?? actividad.fecha_inicio) < new Date()
   const fechaInicio = format(new Date(actividad.fecha_inicio), "d 'de' MMMM 'de' yyyy, HH:mm 'hs'", { locale: es })
   const fechaFin = actividad.fecha_fin
     ? format(new Date(actividad.fecha_fin), "d 'de' MMMM 'de' yyyy, HH:mm 'hs'", { locale: es })
@@ -58,7 +58,7 @@ export default async function ActividadDetallePage({ params, searchParams }: Pro
     image: actividad.imagen_url ?? undefined,
     description: actividad.descripcion.replace(/<[^>]+>/g, " ").slice(0, 300),
     eventStatus: esPasada
-      ? "https://schema.org/EventScheduled"
+      ? "https://schema.org/EventCompleted"
       : "https://schema.org/EventScheduled",
     organizer: { "@type": "Organization", name: "Centro Vecinal Centro América" },
   }
