@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, Eye, EyeOff } from "lucide-react"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
@@ -102,21 +102,10 @@ export function AvisosAdminTable({ avisos }: Props) {
                 <TableRow key={aviso.id}>
                   <TableCell className="font-medium max-w-xs truncate">{aviso.titulo}</TableCell>
 
-                  {/* Estado — clickeable para togglear */}
                   <TableCell>
-                    <button
-                      onClick={() => handleToggle(aviso.id, !aviso.activo)}
-                      disabled={isPending}
-                      title={aviso.activo ? "Clic para inactivar" : "Clic para activar"}
-                      className="disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Badge
-                        variant={aviso.activo ? "default" : "secondary"}
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                      >
-                        {aviso.activo ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </button>
+                    <Badge variant={aviso.activo ? "default" : "secondary"}>
+                      {aviso.activo ? "Activo" : "Inactivo"}
+                    </Badge>
                   </TableCell>
 
                   <TableCell>
@@ -127,6 +116,17 @@ export function AvisosAdminTable({ avisos }: Props) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {/* Toggle activo */}
+                      <button
+                        onClick={() => handleToggle(aviso.id, !aviso.activo)}
+                        disabled={isPending}
+                        aria-label={aviso.activo ? "Desactivar" : "Activar"}
+                        title={aviso.activo ? "Desactivar" : "Activar"}
+                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+                      >
+                        {aviso.activo ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+
                       {/* Editar */}
                       <Link
                         href={`/admin/avisos/${aviso.id}/editar`}
