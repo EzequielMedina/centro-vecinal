@@ -15,12 +15,13 @@ export function slugify(texto: string): string {
 export async function uniqueSlug(
   titulo: string,
   supabase: SupabaseClient,
-  excludeId?: string
+  excludeId?: string,
+  tabla: string = "avisos"
 ): Promise<string> {
-  const base = slugify(titulo) || `aviso-${Date.now()}`
+  const base = slugify(titulo) || `${tabla}-${Date.now()}`
 
   const { data } = await supabase
-    .from("avisos")
+    .from(tabla)
     .select("slug")
     .like("slug", `${base}%`)
 
@@ -29,7 +30,7 @@ export async function uniqueSlug(
   // Excluir el propio registro al editar
   if (excludeId) {
     const { data: own } = await supabase
-      .from("avisos")
+      .from(tabla)
       .select("slug")
       .eq("id", excludeId)
       .single()
