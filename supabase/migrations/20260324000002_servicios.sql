@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS moddatetime;
 
 CREATE TABLE public.servicios (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre      TEXT        NOT NULL,
+  nombre      TEXT        NOT NULL UNIQUE,
   descripcion TEXT        NOT NULL DEFAULT '',
   icono       TEXT        NOT NULL DEFAULT 'circle',   -- nombre del ícono Lucide
   orden       INT         NOT NULL DEFAULT 0,
@@ -16,8 +16,7 @@ CREATE TABLE public.servicios (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_servicios_activo ON public.servicios (activo);
-CREATE INDEX idx_servicios_orden  ON public.servicios (orden);
+CREATE INDEX idx_servicios_activo_orden ON public.servicios (activo, orden);
 
 CREATE TRIGGER set_servicios_updated_at
   BEFORE UPDATE ON public.servicios
@@ -31,9 +30,10 @@ CREATE POLICY "servicios_select_public"
   ON public.servicios FOR SELECT
   USING (activo = true);
 
--- CRUD solo para admins
+-- CRUD solo para admins autenticados
 CREATE POLICY "servicios_all_admin"
   ON public.servicios FOR ALL
+  TO authenticated
   USING (
     EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid())
   )

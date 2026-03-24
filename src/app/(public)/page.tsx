@@ -10,14 +10,17 @@ import { SectionReveal } from "@/components/home/SectionReveal"
 
 export const revalidate = 60
 
+const SITE_URL = "https://centrovecinalcentroamerica.org.ar"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Centro Vecinal Centro América — Inicio",
   description:
     "Sitio oficial del Centro Vecinal Centro América. Actividades, avisos, servicios y más para los vecinos del barrio.",
   openGraph: {
     title: "Centro Vecinal Centro América",
     description: "Tu espacio de encuentro, cultura y participación comunitaria en el barrio.",
-    url: "/",
+    url: SITE_URL,
     siteName: "Centro Vecinal Centro América",
     locale: "es_AR",
     type: "website",
@@ -37,7 +40,7 @@ const jsonLd = {
   telephone: "+543511234567",
   email: "info@centrovecinalcentroamerica.org.ar",
   openingHours: ["Mo-Fr 09:00-18:00", "Sa 09:00-13:00"],
-  url: "/",
+  url: SITE_URL,
 }
 
 export default async function HomePage() {
