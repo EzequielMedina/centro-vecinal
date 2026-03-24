@@ -14,7 +14,7 @@ export function sanitizeHtml(html: string): string {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
-    // Forzar rel="noopener noreferrer" en links externos
+    // Permite href/target/rel en <a> — el editor TipTap ya agrega rel="noopener noreferrer"
     FORCE_BODY: false,
     ADD_ATTR: ["target"],
   })
