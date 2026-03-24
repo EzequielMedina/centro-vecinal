@@ -58,6 +58,42 @@ export type Database = {
         }
         Relationships: []
       }
+      avisos: {
+        Row: {
+          activo: boolean
+          contenido: string
+          created_at: string
+          destacado: boolean
+          id: string
+          imagen_url: string | null
+          slug: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          contenido: string
+          created_at?: string
+          destacado?: boolean
+          id?: string
+          imagen_url?: string | null
+          slug: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          contenido?: string
+          created_at?: string
+          destacado?: boolean
+          id?: string
+          imagen_url?: string | null
+          slug?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rate_limit: {
         Row: {
           count: number

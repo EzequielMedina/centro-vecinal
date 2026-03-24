@@ -74,3 +74,35 @@ INSERT INTO public.admin_users (id, email, nombre, rol) VALUES (
   'superadmin'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ── Avisos de prueba ─────────────────────────────────────────
+
+INSERT INTO public.avisos (id, titulo, slug, contenido, destacado, activo, created_at) VALUES
+(
+  '10000000-0000-0000-0000-000000000001',
+  'Reunión vecinal mensual',
+  'reunion-vecinal-mensual',
+  '<p>Este mes nos reunimos el <strong>último viernes a las 19:00 hs</strong> en el salón del centro vecinal.</p><p>Se tratarán temas de seguridad barrial, mejoras en los espacios verdes y organización de las fiestas de fin de año.</p><p>¡Los esperamos a todos!</p>',
+  true,
+  true,
+  NOW() - INTERVAL '2 days'
+),
+(
+  '10000000-0000-0000-0000-000000000002',
+  'Corte de agua programado',
+  'corte-de-agua-programado',
+  '<p>Se informa a los vecinos que el día <strong>jueves 27 de marzo</strong> habrá un corte de agua programado entre las <strong>9:00 y las 17:00 hs</strong> por trabajos de mantenimiento en la red.</p><p>Se recomienda tener agua almacenada con anticipación.</p>',
+  false,
+  true,
+  NOW() - INTERVAL '5 days'
+),
+(
+  '10000000-0000-0000-0000-000000000003',
+  'Aviso de prueba inactivo',
+  'aviso-prueba-inactivo',
+  '<p>Este aviso está inactivo y no debe verse en la página pública.</p>',
+  false,
+  false,
+  NOW() - INTERVAL '10 days'
+)
+ON CONFLICT (id) DO NOTHING;
