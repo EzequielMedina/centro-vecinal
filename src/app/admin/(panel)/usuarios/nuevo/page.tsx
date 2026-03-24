@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
@@ -10,7 +10,7 @@ export default async function NuevoUsuarioPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return notFound()
+  if (!user) redirect("/admin/login")
 
   const { data: currentAdmin } = await supabase
     .from("admin_users")

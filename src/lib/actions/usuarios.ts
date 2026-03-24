@@ -56,10 +56,11 @@ export async function createAdmin(formData: FormData): Promise<ActionResult> {
       })
 
     if (authError) {
-      if (authError.message.toLowerCase().includes("already registered")) {
+      // Código 422 indica email ya registrado (más robusto que comparar el mensaje)
+      if (authError.status === 422) {
         return { error: "Ya existe un usuario con ese email" }
       }
-      console.error("[createAdmin] auth error:", authError.message)
+      console.error("[createAdmin] auth error:", authError.status, authError.message)
       return { error: "Error al crear el usuario" }
     }
 

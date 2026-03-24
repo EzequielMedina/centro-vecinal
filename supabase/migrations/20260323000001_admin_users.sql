@@ -27,10 +27,13 @@ CREATE POLICY "admin puede ver su propio perfil"
 
 -- Solo service_role puede insertar/actualizar/eliminar
 -- (las operaciones de gestión de usuarios usan el cliente con service_role)
+-- Nota: service_role bypass-ea RLS por defecto en Supabase; esta policy es una
+-- segunda capa de defensa para entornos donde el bypass no esté activo.
 CREATE POLICY "solo service_role puede escribir"
   ON public.admin_users
   FOR ALL
-  USING (auth.role() = 'service_role');
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
 
 -- ── Tabla rate_limit (para formulario de contacto) ──────────
 
@@ -46,4 +49,5 @@ ALTER TABLE public.rate_limit ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "solo service_role"
   ON public.rate_limit
   FOR ALL
-  USING (auth.role() = 'service_role');
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
