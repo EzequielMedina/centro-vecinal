@@ -22,8 +22,10 @@ type Props = {
 export function RichTextEditor({ value, onChange, disabled }: Props) {
   const editor = useEditor({
     extensions: [
+      // StarterKit v3 incluye Link — lo deshabilitamos aquí y lo configuramos por separado
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
+        link: false,
       }),
       Link.configure({
         openOnClick: false,

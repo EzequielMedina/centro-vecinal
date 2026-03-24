@@ -147,9 +147,10 @@ export async function createAviso(formData: FormData): Promise<ActionResult> {
     revalidatePath("/")
     return { success: true }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : ""
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error("[createAviso catch]", msg)
     if (msg === "No autorizado") return { error: msg }
-    if (msg.includes("permitido") || msg.includes("superar")) return { error: msg }
+    if (msg.includes("permitido") || msg.includes("superar") || msg.includes("subir")) return { error: msg }
     return { error: "Error al guardar el aviso" }
   }
 }
@@ -229,9 +230,10 @@ export async function updateAviso(
     revalidatePath("/")
     return { success: true }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : ""
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error("[updateAviso catch]", msg)
     if (msg === "No autorizado") return { error: msg }
-    if (msg.includes("permitido") || msg.includes("superar")) return { error: msg }
+    if (msg.includes("permitido") || msg.includes("superar") || msg.includes("subir")) return { error: msg }
     return { error: "Error al actualizar el aviso" }
   }
 }
