@@ -9,13 +9,20 @@ export const ActividadSchema = z
       .min(1, "El título es obligatorio")
       .max(200, "El título no puede superar los 200 caracteres"),
     descripcion: z.string().min(1, "La descripción es obligatoria"),
-    fecha_inicio: z.string().min(1, "La fecha de inicio es obligatoria"),
-    fecha_fin: z.string().optional().or(z.literal("")),
+    fecha_inicio: z
+      .string()
+      .min(1, "La fecha de inicio es obligatoria")
+      .refine((v) => !Number.isNaN(Date.parse(v)), "La fecha de inicio no es válida"),
+    fecha_fin: z
+      .string()
+      .optional()
+      .or(z.literal(""))
+      .refine((v) => !v || !Number.isNaN(Date.parse(v)), "La fecha de fin no es válida"),
     ubicacion: z.string().max(300, "La ubicación no puede superar los 300 caracteres").default(""),
     capacidad: z
       .string()
       .optional()
-      .transform((v) => (v === "" || v === undefined ? null : parseInt(v, 10)))
+      .transform((v) => (v === "" || v === undefined ? null : Number(v)))
       .pipe(z.number().int().positive("La capacidad debe ser un número positivo").nullable()),
     categoria: z.enum(CATEGORIAS_VALIDAS, { error: "Categoría inválida" }),
     activa: z.boolean().default(true),

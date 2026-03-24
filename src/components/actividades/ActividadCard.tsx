@@ -12,9 +12,9 @@ type Props = {
 }
 
 export function ActividadCard({ actividad }: Props) {
-  const { titulo, slug, descripcion, fecha_inicio, ubicacion, capacidad, categoria, imagen_url } = actividad
+  const { titulo, slug, descripcion, fecha_inicio, fecha_fin, ubicacion, capacidad, categoria, imagen_url } = actividad
   const cat = getCategoriaInfo(categoria)
-  const esPasada = new Date(fecha_inicio) < new Date()
+  const esPasada = new Date(fecha_fin ?? fecha_inicio) < new Date()
 
   const resumen = descripcion
     .replace(/<[^>]+>/g, " ")
