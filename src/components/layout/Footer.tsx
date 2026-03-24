@@ -80,7 +80,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-primary-foreground/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-primary-foreground/50">
-          <p>© {new Date().getFullYear()} Centro Vecinal Centro América. Todos los derechos reservados.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Centro Vecinal Centro América. Todos los derechos reservados.</p>
           <Link href="/admin/login" className="hover:text-primary-foreground/70 transition-colors">
             Acceso administradores
           </Link>
