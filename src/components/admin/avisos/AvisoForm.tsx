@@ -97,7 +97,6 @@ export function AvisoForm({ aviso }: Props) {
     })
   }
 
-  const isBlob = imagePreview?.startsWith("blob:")
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
@@ -141,7 +140,7 @@ export function AvisoForm({ aviso }: Props) {
               fill
               className="object-cover"
               // Los blob URLs son locales — no pasan por el optimizador de Next.js
-              unoptimized={isBlob}
+              unoptimized
             />
             <button
               type="button"
