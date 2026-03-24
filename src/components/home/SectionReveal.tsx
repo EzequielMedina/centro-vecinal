@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useInView, useReducedMotion } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import { motion, useInView } from "framer-motion"
 
 type Props = {
   children: React.ReactNode
@@ -12,19 +12,23 @@ type Props = {
 export function SectionReveal({ children, className, delay = 0 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
-  // Respetar prefers-reduced-motion del sistema operativo
-  const reducedMotion = useReducedMotion()
+  // Empieza en false para que el servidor y la hidratación inicial sean idénticos (sin styles inline)
+  const [mounted, setMounted] = useState(false)
 
-  if (reducedMotion) {
-    return <div className={className}>{children}</div>
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Antes de montar: div sin estilos → el servidor y el cliente coinciden, sin hydration mismatch
+  if (!mounted) {
+    return <div ref={ref} className={className}>{children}</div>
   }
 
   return (
     <motion.div
-      ref={ref}
       className={className}
       initial={{ opacity: 0, y: 24 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.5, ease: "easeOut", delay }}
     >
       {children}
