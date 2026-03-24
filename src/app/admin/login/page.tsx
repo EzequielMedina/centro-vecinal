@@ -1,6 +1,8 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
 import Image from "next/image"
 import type { Metadata } from "next"
+import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { LoginForm } from "@/components/admin/auth/LoginForm"
 
@@ -8,7 +10,22 @@ export const metadata: Metadata = {
   title: "Ingresar — Panel Admin | Centro Vecinal Centro América",
 }
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // Si ya hay sesión válida y el usuario pertenece a admin_users → al dashboard
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user) {
+    const { data: adminUser } = await supabase
+      .from("admin_users")
+      .select("id")
+      .eq("id", user.id)
+      .single()
+
+    if (adminUser) redirect("/admin/dashboard")
+  }
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
       <div className="w-full max-w-sm">
