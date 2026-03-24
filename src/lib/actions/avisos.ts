@@ -74,13 +74,13 @@ async function checkMaxDestacados(
   supabase: Awaited<ReturnType<typeof createClient>>,
   excludeId?: string
 ): Promise<boolean> {
-  const query = supabase
+  let query = supabase
     .from("avisos")
     .select("id", { count: "exact" })
     .eq("destacado", true)
     .eq("activo", true)
 
-  if (excludeId) query.neq("id", excludeId)
+  if (excludeId) query = query.neq("id", excludeId)
 
   const { count, error } = await query
 
