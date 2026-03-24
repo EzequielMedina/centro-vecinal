@@ -91,6 +91,16 @@ export function ActividadForm({ actividad }: Props) {
     formData.set("descripcion", descripcion)
     formData.set("categoria", categoria)
 
+    // Convertir datetime-local (sin zona) a ISO con offset para persistir correctamente en TIMESTAMPTZ
+    const fechaInicio = formData.get("fecha_inicio")
+    if (typeof fechaInicio === "string" && fechaInicio) {
+      formData.set("fecha_inicio", new Date(fechaInicio).toISOString())
+    }
+    const fechaFin = formData.get("fecha_fin")
+    if (typeof fechaFin === "string" && fechaFin) {
+      formData.set("fecha_fin", new Date(fechaFin).toISOString())
+    }
+
     if (selectedFileRef.current) {
       formData.set("imagen", selectedFileRef.current)
     }

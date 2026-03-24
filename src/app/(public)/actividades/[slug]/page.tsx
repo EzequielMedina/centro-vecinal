@@ -69,7 +69,7 @@ export default async function ActividadDetallePage({ params, searchParams }: Pro
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       <div className="container mx-auto px-4 py-10 max-w-3xl space-y-8">

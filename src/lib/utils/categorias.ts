@@ -6,6 +6,8 @@ export type Categoria = {
   color: string   // clases Tailwind para el badge
 }
 
+export const CATEGORIAS_VALIDAS = ["taller", "deporte", "cultural", "apoyo-estudiantil", "otro"] as const
+
 export const CATEGORIAS: Categoria[] = [
   { value: "taller",            label: "Taller",            color: "bg-violet-100 text-violet-700" },
   { value: "deporte",           label: "Deporte",           color: "bg-green-100 text-green-700" },

@@ -1,6 +1,5 @@
 import { z } from "zod"
-
-const CATEGORIAS_VALIDAS = ["taller", "deporte", "cultural", "apoyo-estudiantil", "otro"] as const
+import { CATEGORIAS_VALIDAS } from "@/lib/utils/categorias"
 
 export const ActividadSchema = z
   .object({

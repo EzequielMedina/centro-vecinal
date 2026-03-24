@@ -3,6 +3,8 @@
 -- Eventos y actividades del centro vecinal
 -- ============================================================
 
+CREATE EXTENSION IF NOT EXISTS moddatetime;
+
 CREATE TABLE public.actividades (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   titulo       TEXT        NOT NULL,
