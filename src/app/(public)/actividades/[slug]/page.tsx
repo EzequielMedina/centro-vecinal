@@ -4,7 +4,7 @@ import Link from "next/link"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { MapPin, Users, Calendar, ArrowLeft } from "lucide-react"
-import { getActividadBySlug, getActividades } from "@/lib/queries/actividades"
+import { getActividadBySlug } from "@/lib/queries/actividades"
 import { getCategoriaInfo } from "@/lib/utils/categorias"
 import { cn } from "@/lib/utils"
 
@@ -15,11 +15,6 @@ type Props = {
   searchParams: Promise<{ categoria?: string }>
 }
 
-export async function generateStaticParams() {
-  const actividades = await getActividades()
-  const futuras = actividades.filter((a) => new Date(a.fecha_inicio) >= new Date())
-  return futuras.map((a) => ({ slug: a.slug }))
-}
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params

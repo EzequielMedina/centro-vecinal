@@ -6,7 +6,7 @@ import { HeroSection } from "@/components/home/HeroSection"
 import { AvisosDestacadosSection } from "@/components/home/AvisosDestacadosSection"
 import { ProximasActividadesSection } from "@/components/home/ProximasActividadesSection"
 import { ServiciosResumenSection } from "@/components/home/ServiciosResumenSection"
-import { ContactoInfoSection } from "@/components/home/ContactoInfoSection"
+import { SectionReveal } from "@/components/home/SectionReveal"
 
 export const revalidate = 60
 
@@ -55,10 +55,15 @@ export default async function HomePage() {
       />
 
       <HeroSection />
-      <AvisosDestacadosSection avisos={avisos} />
-      <ProximasActividadesSection actividades={actividades} />
-      <ServiciosResumenSection servicios={servicios} />
-      <ContactoInfoSection />
+      <SectionReveal delay={0.1}>
+        <AvisosDestacadosSection avisos={avisos} />
+      </SectionReveal>
+      <SectionReveal delay={0.1}>
+        <ProximasActividadesSection actividades={actividades} />
+      </SectionReveal>
+      <SectionReveal delay={0.1}>
+        <ServiciosResumenSection servicios={servicios} />
+      </SectionReveal>
     </>
   )
 }
