@@ -163,3 +163,13 @@ INSERT INTO public.actividades (id, titulo, slug, descripcion, fecha_inicio, fec
   '00000000-0000-0000-0000-000000000001'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ── Servicios de prueba ────────────────────────────────────
+INSERT INTO public.servicios (id, nombre, descripcion, icono, orden, activo) VALUES
+  ('30000000-0000-0000-0000-000000000001', 'Talleres y Cursos',       'Talleres de manualidades, computación, cocina y más.',         'BookOpen',      1, true),
+  ('30000000-0000-0000-0000-000000000002', 'Actividades Deportivas',  'Clases de fútbol, gimnasia y deportes para todas las edades.', 'Trophy',        2, true),
+  ('30000000-0000-0000-0000-000000000003', 'Apoyo Escolar',           'Refuerzo educativo para niños y adolescentes.',               'GraduationCap', 3, true),
+  ('30000000-0000-0000-0000-000000000004', 'Eventos Culturales',      'Obras de teatro, música en vivo y exposiciones.',             'Music',         4, true),
+  ('30000000-0000-0000-0000-000000000005', 'Asesoramiento Legal',     'Consultas gratuitas con profesionales del barrio.',           'Scale',         5, true),
+  ('30000000-0000-0000-0000-000000000006', 'Biblioteca Popular',      'Préstamo de libros y sala de lectura abierta.',               'Library',       6, false)
+ON CONFLICT (id) DO NOTHING;

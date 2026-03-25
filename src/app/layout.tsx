@@ -31,7 +31,8 @@ export default function RootLayout({
       lang="es"
       className={`${inter.variable} ${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* suppressHydrationWarning evita falsos errores por extensiones de browser (ej. Grammarly) */}
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
     </html>
   )
 }
