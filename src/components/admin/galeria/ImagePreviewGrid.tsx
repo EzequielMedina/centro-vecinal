@@ -74,6 +74,7 @@ export function ImagePreviewGrid({ files, onRemove, onUpdate }: Props) {
               value={item.titulo}
               disabled={item.status !== "pending"}
               onChange={(e) => onUpdate(item.id, "titulo", e.target.value)}
+              data-gramm="false"
               className="w-full text-sm px-2 py-1.5 rounded-md border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
             <textarea
@@ -82,6 +83,7 @@ export function ImagePreviewGrid({ files, onRemove, onUpdate }: Props) {
               disabled={item.status !== "pending"}
               onChange={(e) => onUpdate(item.id, "descripcion", e.target.value)}
               rows={2}
+              data-gramm="false"
               className="w-full text-sm px-2 py-1.5 rounded-md border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 resize-none"
             />
             <p className="text-xs text-muted-foreground truncate">{item.file.name} · {(item.file.size / 1024 / 1024).toFixed(1)} MB</p>
