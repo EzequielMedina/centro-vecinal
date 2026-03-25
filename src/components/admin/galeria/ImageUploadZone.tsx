@@ -34,6 +34,8 @@ export function ImageUploadZone({ onUploaded }: Props) {
           id: Math.random().toString(36).slice(2),
           file: f,
           previewUrl: URL.createObjectURL(f),
+          titulo: "",
+          descripcion: "",
           status: "pending" as const,
         })),
       ]
@@ -48,6 +50,10 @@ export function ImageUploadZone({ onUploaded }: Props) {
     },
     [addFiles]
   )
+
+  const handleUpdate = useCallback((id: string, field: "titulo" | "descripcion", value: string) => {
+    setFiles((prev) => prev.map((f) => f.id === id ? { ...f, [field]: value } : f))
+  }, [])
 
   const handleRemove = useCallback((id: string) => {
     setFiles((prev) => {
@@ -73,6 +79,8 @@ export function ImageUploadZone({ onUploaded }: Props) {
       pending.map(async (item) => {
         const formData = new FormData()
         formData.append("file", item.file)
+        formData.append("titulo", item.titulo)
+        formData.append("descripcion", item.descripcion)
 
         try {
           const res = await fetch("/api/upload/galeria", {
@@ -107,17 +115,15 @@ export function ImageUploadZone({ onUploaded }: Props) {
     setUploading(false)
 
     // Notificar imágenes subidas exitosamente
-    const uploaded = results
-      .filter((r) => r.ok && r.data)
-      .map((r) => r.data!) as { id: string; url: string }[]
+    const uploaded = results.filter((r) => r.ok && r.data)
 
     if (uploaded.length > 0) {
-      // Construir objetos parciales compatibles con ImagenGaleria para actualizar la grilla
-      const nuevas = uploaded.map((u) => ({
-        id: u.id,
-        url: u.url,
-        titulo: "",
-        descripcion: "",
+      const pendingMap = Object.fromEntries(pending.map((p) => [p.id, p]))
+      const nuevas = uploaded.map((r) => ({
+        id: r.data!.id,
+        url: r.data!.url,
+        titulo: pendingMap[r.id]?.titulo ?? "",
+        descripcion: pendingMap[r.id]?.descripcion ?? "",
         categoria: "",
         orden: 0,
         created_at: new Date().toISOString(),
@@ -176,7 +182,7 @@ export function ImageUploadZone({ onUploaded }: Props) {
       </div>
 
       {/* Previews */}
-      <ImagePreviewGrid files={files} onRemove={handleRemove} />
+      <ImagePreviewGrid files={files} onRemove={handleRemove} onUpdate={handleUpdate} />
 
       {/* Acción confirmar */}
       {pendingCount > 0 && (

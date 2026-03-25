@@ -125,6 +125,18 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
         )}
       </div>
 
+      {/* Título y descripción de la imagen actual */}
+      {(imagenes[indice].titulo || imagenes[indice].descripcion) && (
+        <div className="text-center space-y-1 px-4">
+          {imagenes[indice].titulo && (
+            <p className="font-medium text-foreground">{imagenes[indice].titulo}</p>
+          )}
+          {imagenes[indice].descripcion && (
+            <p className="text-sm text-muted-foreground">{imagenes[indice].descripcion}</p>
+          )}
+        </div>
+      )}
+
       {/* Indicadores y link */}
       <div className="flex items-center justify-center gap-1.5">
         {imagenes.map((_, i) => (
