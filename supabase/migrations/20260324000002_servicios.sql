@@ -9,7 +9,8 @@ CREATE TABLE public.servicios (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   nombre      TEXT        NOT NULL UNIQUE,
   descripcion TEXT        NOT NULL DEFAULT '',
-  icono       TEXT        NOT NULL DEFAULT 'circle',   -- nombre del ícono Lucide
+  icono       TEXT        NOT NULL DEFAULT 'Circle',   -- nombre del ícono Lucide (PascalCase, ej. 'BookOpen')
+  CONSTRAINT servicios_icono_format CHECK (icono ~ '^[A-Z][A-Za-z0-9]*$'),
   orden       INT         NOT NULL DEFAULT 0,
   activo      BOOLEAN     NOT NULL DEFAULT true,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
