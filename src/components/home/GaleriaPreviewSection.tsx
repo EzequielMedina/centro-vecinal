@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
@@ -16,16 +16,24 @@ const INTERVALO_MS = 4000
 export function GaleriaPreviewSection({ imagenes }: Props) {
   const [indice, setIndice] = useState(0)
   const [animating, setAnimating] = useState(false)
+  const animatingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const go = useCallback(
     (next: number) => {
       if (animating) return
       setAnimating(true)
       setIndice(next)
-      setTimeout(() => setAnimating(false), 400)
+      animatingTimeoutRef.current = setTimeout(() => setAnimating(false), 400)
     },
     [animating]
   )
+
+  // Limpiar timeout pendiente al desmontar
+  useEffect(() => {
+    return () => {
+      if (animatingTimeoutRef.current) clearTimeout(animatingTimeoutRef.current)
+    }
+  }, [])
 
   const anterior = useCallback(() => {
     go((indice - 1 + imagenes.length) % imagenes.length)
@@ -68,16 +76,24 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
       <div className="relative flex items-center justify-center gap-3 overflow-hidden px-2 py-4">
         {slides.map(({ img, role }) => {
           const isCurrent = role === "current"
+          const Wrapper = isCurrent ? "div" : "button"
+          const wrapperProps = isCurrent
+            ? {}
+            : {
+                type: "button" as const,
+                onClick: role === "prev" ? anterior : siguiente,
+                "aria-label": role === "prev" ? "Imagen anterior" : "Imagen siguiente",
+              }
           return (
-            <div
+            <Wrapper
               key={`${role}-${img.id}`}
               className={cn(
                 "relative shrink-0 overflow-hidden rounded-xl transition-all duration-[400ms]",
                 isCurrent
                   ? "w-[50%] sm:w-[52%] aspect-[4/3] z-10 shadow-xl ring-2 ring-primary/20"
-                  : "w-[22%] sm:w-[21%] aspect-[4/3] opacity-50 scale-95 cursor-pointer"
+                  : "w-[22%] sm:w-[21%] aspect-[4/3] opacity-50 scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               )}
-              onClick={role === "prev" ? anterior : role === "next" ? siguiente : undefined}
+              {...wrapperProps}
             >
               <Image
                 src={img.url}
@@ -98,7 +114,7 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
                   <p className="text-sm text-white font-medium truncate">{img.titulo}</p>
                 </div>
               )}
-            </div>
+            </Wrapper>
           )
         })}
 

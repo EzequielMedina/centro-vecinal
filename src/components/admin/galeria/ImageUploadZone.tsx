@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback, useEffect } from "react"
 import { Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImagePreviewGrid, type UploadFile } from "./ImagePreviewGrid"
@@ -20,6 +20,16 @@ export function ImageUploadZone({ onUploaded }: Props) {
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
 
+  // Revocar todas las object URLs al desmontar para evitar memory leaks
+  useEffect(() => {
+    return () => {
+      setFiles((prev) => {
+        prev.forEach((f) => URL.revokeObjectURL(f.previewUrl))
+        return prev
+      })
+    }
+  }, [])
+
   const addFiles = useCallback((incoming: File[]) => {
     const valid = incoming
       .filter((f) => ACCEPTED_TYPES.includes(f.type))
@@ -31,7 +41,7 @@ export function ImageUploadZone({ onUploaded }: Props) {
       return [
         ...prev,
         ...valid.slice(0, remaining).map((f) => ({
-          id: Math.random().toString(36).slice(2),
+          id: crypto.randomUUID(),
           file: f,
           previewUrl: URL.createObjectURL(f),
           titulo: "",

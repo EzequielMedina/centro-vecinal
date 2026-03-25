@@ -59,6 +59,7 @@ export async function deleteImagen(id: string, url: string): Promise<ActionResul
     }
   }
 
+  revalidatePath("/")
   revalidatePath("/galeria")
   revalidatePath("/admin/galeria")
   return { success: true }
@@ -88,6 +89,7 @@ export async function updateOrden(ids: string[]): Promise<ActionResult> {
     return { error: "Error al actualizar el orden" }
   }
 
+  revalidatePath("/")
   revalidatePath("/galeria")
   revalidatePath("/admin/galeria")
   return { success: true }
