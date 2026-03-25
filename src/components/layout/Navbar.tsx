@@ -8,11 +8,12 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { href: "/avisos",      label: "Avisos" },
-  { href: "/actividades", label: "Actividades" },
-  { href: "/servicios",   label: "Servicios" },
+  { href: "/avisos",         label: "Avisos" },
+  { href: "/actividades",    label: "Actividades" },
+  { href: "/galeria",        label: "Galería" },
+  { href: "/servicios",      label: "Servicios" },
   { href: "/sobre-nosotros", label: "Sobre Nosotros" },
-  { href: "/contacto",    label: "Contacto" },
+  { href: "/contacto",       label: "Contacto" },
 ]
 
 export function Navbar() {

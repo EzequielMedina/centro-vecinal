@@ -141,15 +141,6 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
         ))}
       </div>
 
-      {/* CTA */}
-      <div className="text-center">
-        <Link
-          href="/galeria"
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-lg border text-sm font-medium hover:bg-muted transition-colors"
-        >
-          Ver todas las fotos <ArrowRight size={14} />
-        </Link>
-      </div>
     </section>
   )
 }
