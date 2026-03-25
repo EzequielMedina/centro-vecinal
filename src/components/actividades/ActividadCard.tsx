@@ -33,6 +33,7 @@ export function ActividadCard({ actividad }: Props) {
             src={imagen_url}
             alt={titulo}
             fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
