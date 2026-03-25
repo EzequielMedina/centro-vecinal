@@ -161,7 +161,10 @@ export function ImageUploadZone({ onUploaded }: Props) {
           multiple
           accept="image/jpeg,image/png,image/webp"
           className="hidden"
-          onChange={(e) => addFiles(Array.from(e.target.files ?? []))}
+          onChange={(e) => {
+            addFiles(Array.from(e.target.files ?? []))
+            e.currentTarget.value = ""
+          }}
         />
         <Upload className="mx-auto mb-3 text-muted-foreground" size={32} />
         <p className="text-sm font-medium text-foreground">
