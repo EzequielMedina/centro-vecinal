@@ -16,6 +16,10 @@ export function GaleriaAdminContainer({ initialImagenes }: Props) {
     setImagenes((prev) => [...nuevas, ...prev])
   }
 
+  const handleDeleted = (id: string) => {
+    setImagenes((prev) => prev.filter((img) => img.id !== id))
+  }
+
   return (
     <div className="space-y-10">
       <section>
@@ -30,7 +34,11 @@ export function GaleriaAdminContainer({ initialImagenes }: Props) {
             Arrastrá para reordenar
           </span>
         </h2>
-        <GaleriaAdminGrid initialImagenes={imagenes} />
+        <GaleriaAdminGrid
+          imagenes={imagenes}
+          onImagenesChange={setImagenes}
+          onDeleted={handleDeleted}
+        />
       </section>
     </div>
   )

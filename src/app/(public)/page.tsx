@@ -2,10 +2,12 @@ import type { Metadata } from "next"
 import { getAvisosDestacados } from "@/lib/queries/avisos"
 import { getProximasActividades } from "@/lib/queries/actividades"
 import { getServiciosActivos } from "@/lib/queries/servicios"
+import { getImagenesDestacadas } from "@/lib/queries/galeria"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AvisosDestacadosSection } from "@/components/home/AvisosDestacadosSection"
 import { ProximasActividadesSection } from "@/components/home/ProximasActividadesSection"
 import { ServiciosResumenSection } from "@/components/home/ServiciosResumenSection"
+import { GaleriaPreviewSection } from "@/components/home/GaleriaPreviewSection"
 import { SectionReveal } from "@/components/home/SectionReveal"
 
 export const revalidate = 60
@@ -44,10 +46,11 @@ const jsonLd = {
 }
 
 export default async function HomePage() {
-  const [avisos, actividades, servicios] = await Promise.all([
+  const [avisos, actividades, servicios, imagenesGaleria] = await Promise.all([
     getAvisosDestacados(),
     getProximasActividades(),
     getServiciosActivos(),
+    getImagenesDestacadas(8),
   ])
 
   return (
@@ -67,6 +70,11 @@ export default async function HomePage() {
       <SectionReveal delay={0.1}>
         <ServiciosResumenSection servicios={servicios} />
       </SectionReveal>
+      {imagenesGaleria.length > 0 && (
+        <SectionReveal delay={0.1}>
+          <GaleriaPreviewSection imagenes={imagenesGaleria} />
+        </SectionReveal>
+      )}
     </>
   )
 }

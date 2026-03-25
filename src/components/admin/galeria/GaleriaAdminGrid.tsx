@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useCallback } from "react"
 import {
   DndContext,
   closestCenter,
@@ -16,18 +16,19 @@ import {
   rectSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable"
+
 import { toast } from "sonner"
 import { ImageCard } from "./ImageCard"
 import { updateOrden } from "@/lib/actions/galeria"
 import type { ImagenGaleria } from "@/lib/queries/galeria"
 
 type Props = {
-  initialImagenes: ImagenGaleria[]
+  imagenes: ImagenGaleria[]
+  onImagenesChange: (imagenes: ImagenGaleria[]) => void
+  onDeleted: (id: string) => void
 }
 
-export function GaleriaAdminGrid({ initialImagenes }: Props) {
-  const [imagenes, setImagenes] = useState(initialImagenes)
-
+export function GaleriaAdminGrid({ imagenes, onImagenesChange, onDeleted }: Props) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -43,23 +44,19 @@ export function GaleriaAdminGrid({ initialImagenes }: Props) {
       const reordered = arrayMove(imagenes, oldIndex, newIndex)
 
       // Optimistic update
-      setImagenes(reordered)
+      onImagenesChange(reordered)
 
       const result = await updateOrden(reordered.map((img) => img.id))
       if ("error" in result) {
         toast.error(result.error)
         // Revertir
-        setImagenes(imagenes)
+        onImagenesChange(imagenes)
       } else {
         toast.success("Orden actualizado")
       }
     },
-    [imagenes]
+    [imagenes, onImagenesChange]
   )
-
-  const handleDeleted = useCallback((id: string) => {
-    setImagenes((prev) => prev.filter((img) => img.id !== id))
-  }, [])
 
   if (imagenes.length === 0) {
     return (
@@ -74,7 +71,7 @@ export function GaleriaAdminGrid({ initialImagenes }: Props) {
       <SortableContext items={imagenes.map((img) => img.id)} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {imagenes.map((imagen) => (
-            <ImageCard key={imagen.id} imagen={imagen} onDeleted={handleDeleted} />
+            <ImageCard key={imagen.id} imagen={imagen} onDeleted={onDeleted} />
           ))}
         </div>
       </SortableContext>

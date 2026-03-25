@@ -23,6 +23,23 @@ export async function getImagenesGaleria(page = 1, limit = PAGE_SIZE): Promise<I
   return data
 }
 
+export async function getImagenesDestacadas(limit = 8): Promise<ImagenGaleria[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("galeria")
+    .select("*")
+    .order("orden", { ascending: true })
+    .order("created_at", { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error("[getImagenesDestacadas]", error.message)
+    throw new Error("Error al obtener las imágenes de la galería")
+  }
+  return data
+}
+
 export async function countImagenes(): Promise<number> {
   const supabase = await createClient()
 
