@@ -10,7 +10,7 @@ type Props = {
 }
 
 function isLucideIcon(value: unknown): value is LucideIcon {
-  return typeof value === "function"
+  return typeof value === "function" || (typeof value === "object" && value !== null && "$$typeof" in value)
 }
 
 function ServicioIcon({ nombre }: { nombre: string }) {
