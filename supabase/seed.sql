@@ -173,3 +173,4 @@ INSERT INTO public.servicios (id, nombre, descripcion, icono, orden, activo) VAL
   ('30000000-0000-0000-0000-000000000005', 'Asesoramiento Legal',     'Consultas gratuitas con profesionales del barrio.',           'Scale',         5, true),
   ('30000000-0000-0000-0000-000000000006', 'Biblioteca Popular',      'Préstamo de libros y sala de lectura abierta.',               'Library',       6, false)
 ON CONFLICT (id) DO NOTHING;
+
