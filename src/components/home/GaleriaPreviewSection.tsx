@@ -74,8 +74,8 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
               className={cn(
                 "relative shrink-0 overflow-hidden rounded-xl transition-all duration-400",
                 isCurrent
-                  ? "w-[58%] sm:w-[60%] aspect-[4/3] z-10 shadow-xl ring-2 ring-primary/20"
-                  : "w-[19%] sm:w-[18%] aspect-[4/3] opacity-50 scale-95 cursor-pointer"
+                  ? "w-[50%] sm:w-[52%] aspect-[4/3] z-10 shadow-xl ring-2 ring-primary/20"
+                  : "w-[22%] sm:w-[21%] aspect-[4/3] opacity-50 scale-95 cursor-pointer"
               )}
               onClick={role === "prev" ? anterior : role === "next" ? siguiente : undefined}
             >
