@@ -41,6 +41,7 @@ export function GaleriaAdminGrid({ imagenes, onImagenesChange, onDeleted }: Prop
 
       const oldIndex = imagenes.findIndex((img) => img.id === active.id)
       const newIndex = imagenes.findIndex((img) => img.id === over.id)
+      if (oldIndex === -1 || newIndex === -1) return
       const reordered = arrayMove(imagenes, oldIndex, newIndex)
 
       // Optimistic update
