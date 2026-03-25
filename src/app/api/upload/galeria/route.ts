@@ -14,7 +14,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
-  // A partir de acá usar admin client para storage y DB (ya verificamos auth arriba)
+  // Verificar que el usuario pertenece a admin_users
+  const { data: adminRecord } = await supabase
+    .from("admin_users")
+    .select("id")
+    .eq("id", user.id)
+    .single()
+
+  if (!adminRecord) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+  }
+
+  // A partir de acá usar admin client para storage y DB (ya verificamos auth y rol de admin)
   const adminSupabase = createAdminClient()
 
   let formData: FormData

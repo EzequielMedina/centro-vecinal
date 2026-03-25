@@ -21,13 +21,11 @@ export default async function GaleriaPage({ searchParams }: Props) {
   const { pagina: paginaParam } = await searchParams
   const pagina = Math.max(1, parseInt(paginaParam ?? "1", 10) || 1)
 
-  const [imagenes, total] = await Promise.all([
-    getImagenesGaleria(pagina, PAGE_SIZE),
-    countImagenes(),
-  ])
-
+  const total = await countImagenes()
   const totalPaginas = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const paginaSegura = Math.min(pagina, totalPaginas)
+
+  const imagenes = await getImagenesGaleria(paginaSegura, PAGE_SIZE)
 
   return (
     <main className="container mx-auto px-4 py-12 space-y-6">

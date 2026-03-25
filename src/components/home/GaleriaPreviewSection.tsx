@@ -72,7 +72,7 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
             <div
               key={`${role}-${img.id}`}
               className={cn(
-                "relative shrink-0 overflow-hidden rounded-xl transition-all duration-400",
+                "relative shrink-0 overflow-hidden rounded-xl transition-all duration-[400ms]",
                 isCurrent
                   ? "w-[50%] sm:w-[52%] aspect-[4/3] z-10 shadow-xl ring-2 ring-primary/20"
                   : "w-[22%] sm:w-[21%] aspect-[4/3] opacity-50 scale-95 cursor-pointer"

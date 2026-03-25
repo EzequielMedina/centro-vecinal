@@ -174,7 +174,3 @@ INSERT INTO public.servicios (id, nombre, descripcion, icono, orden, activo) VAL
   ('30000000-0000-0000-0000-000000000006', 'Biblioteca Popular',      'Préstamo de libros y sala de lectura abierta.',               'Library',       6, false)
 ON CONFLICT (id) DO NOTHING;
 
--- ── Storage: bucket galería ───────────────────────────────────
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('galeria', 'galeria', true)
-ON CONFLICT (id) DO NOTHING;
