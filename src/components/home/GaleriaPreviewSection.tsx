@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { ImagenGaleria } from "@/lib/queries/galeria"
 
 type Props = {
@@ -14,16 +15,26 @@ const INTERVALO_MS = 4000
 
 export function GaleriaPreviewSection({ imagenes }: Props) {
   const [indice, setIndice] = useState(0)
+  const [animating, setAnimating] = useState(false)
+
+  const go = useCallback(
+    (next: number) => {
+      if (animating) return
+      setAnimating(true)
+      setIndice(next)
+      setTimeout(() => setAnimating(false), 400)
+    },
+    [animating]
+  )
 
   const anterior = useCallback(() => {
-    setIndice((i) => (i === 0 ? imagenes.length - 1 : i - 1))
-  }, [imagenes.length])
+    go((indice - 1 + imagenes.length) % imagenes.length)
+  }, [go, indice, imagenes.length])
 
   const siguiente = useCallback(() => {
-    setIndice((i) => (i === imagenes.length - 1 ? 0 : i + 1))
-  }, [imagenes.length])
+    go((indice + 1) % imagenes.length)
+  }, [go, indice, imagenes.length])
 
-  // Auto-play
   useEffect(() => {
     if (imagenes.length <= 1) return
     const id = setInterval(siguiente, INTERVALO_MS)
@@ -32,7 +43,14 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
 
   if (imagenes.length === 0) return null
 
-  const imagen = imagenes[indice]
+  const prevIdx = (indice - 1 + imagenes.length) % imagenes.length
+  const nextIdx = (indice + 1) % imagenes.length
+
+  const slides = [
+    { img: imagenes[prevIdx], role: "prev" as const },
+    { img: imagenes[indice],   role: "current" as const },
+    { img: imagenes[nextIdx],  role: "next" as const },
+  ]
 
   return (
     <section className="container mx-auto px-4 py-12 space-y-6">
@@ -46,70 +64,92 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
         </Link>
       </div>
 
-      <Link
-        href="/galeria"
-        className="group relative block w-full overflow-hidden rounded-xl bg-black"
-        style={{ aspectRatio: "16/9" }}
-        aria-label="Ir a la galería"
-      >
-        {/* Imagen actual */}
-        <Image
-          key={imagen.id}
-          src={imagen.url}
-          alt={imagen.titulo || "Imagen de galería"}
-          fill
-          sizes="(min-width: 1024px) 80vw, 100vw"
-          className="object-contain transition-opacity duration-500"
-          unoptimized={process.env.NODE_ENV === "development"}
-          priority={indice === 0}
-        />
-
-        {/* Overlay degradado */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-        {/* Título de imagen */}
-        {imagen.titulo && (
-          <div className="absolute bottom-10 left-4 right-4">
-            <p className="text-white font-medium text-sm drop-shadow">{imagen.titulo}</p>
-          </div>
-        )}
-
-        {/* Indicadores */}
-        {imagenes.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {imagenes.map((_, i) => (
-              <span
-                key={i}
-                className={`block rounded-full transition-all duration-300 ${
-                  i === indice ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50"
-                }`}
+      {/* Carrusel peek */}
+      <div className="relative flex items-center justify-center gap-3 overflow-hidden px-2 py-4">
+        {slides.map(({ img, role }) => {
+          const isCurrent = role === "current"
+          return (
+            <div
+              key={`${role}-${img.id}`}
+              className={cn(
+                "relative shrink-0 overflow-hidden rounded-xl transition-all duration-400",
+                isCurrent
+                  ? "w-[58%] sm:w-[60%] aspect-[4/3] z-10 shadow-xl ring-2 ring-primary/20"
+                  : "w-[19%] sm:w-[18%] aspect-[4/3] opacity-50 scale-95 cursor-pointer"
+              )}
+              onClick={role === "prev" ? anterior : role === "next" ? siguiente : undefined}
+            >
+              <Image
+                src={img.url}
+                alt={img.titulo || "Imagen de galería"}
+                fill
+                sizes={isCurrent ? "(min-width: 640px) 60vw, 58vw" : "20vw"}
+                className="object-cover"
+                unoptimized={process.env.NODE_ENV === "development"}
+                priority={isCurrent}
               />
-            ))}
-          </div>
-        )}
-      </Link>
+              {/* Overlay en imágenes laterales */}
+              {!isCurrent && (
+                <div className="absolute inset-0 bg-background/30" />
+              )}
+              {/* Título en imagen central */}
+              {isCurrent && img.titulo && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-4">
+                  <p className="text-sm text-white font-medium truncate">{img.titulo}</p>
+                </div>
+              )}
+            </div>
+          )
+        })}
 
-      {/* Controles externos (no dentro del Link para evitar anidamiento) */}
-      {imagenes.length > 1 && (
-        <div className="flex justify-center gap-3 -mt-2">
+        {/* Botones de navegación sobre el carrusel */}
+        {imagenes.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={anterior}
+              className="absolute left-0 z-20 p-2 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors"
+              aria-label="Imagen anterior"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={siguiente}
+              className="absolute right-0 z-20 p-2 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors"
+              aria-label="Imagen siguiente"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Indicadores y link */}
+      <div className="flex items-center justify-center gap-1.5">
+        {imagenes.map((_, i) => (
           <button
+            key={i}
             type="button"
-            onClick={anterior}
-            className="p-2 rounded-full border hover:bg-muted transition-colors"
-            aria-label="Imagen anterior"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={siguiente}
-            className="p-2 rounded-full border hover:bg-muted transition-colors"
-            aria-label="Imagen siguiente"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+            onClick={() => go(i)}
+            aria-label={`Ir a imagen ${i + 1}`}
+            className={cn(
+              "rounded-full transition-all duration-300",
+              i === indice ? "w-5 h-1.5 bg-primary" : "w-1.5 h-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+            )}
+          />
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="text-center">
+        <Link
+          href="/galeria"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-lg border text-sm font-medium hover:bg-muted transition-colors"
+        >
+          Ver todas las fotos <ArrowRight size={14} />
+        </Link>
+      </div>
     </section>
   )
 }
