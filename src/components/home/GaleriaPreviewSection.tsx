@@ -48,8 +48,8 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
 
       <Link
         href="/galeria"
-        className="group relative block w-full overflow-hidden rounded-xl bg-muted"
-        style={{ aspectRatio: "16/7" }}
+        className="group relative block w-full overflow-hidden rounded-xl bg-black"
+        style={{ aspectRatio: "16/9" }}
         aria-label="Ir a la galería"
       >
         {/* Imagen actual */}
@@ -59,7 +59,7 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
           alt={imagen.titulo || "Imagen de galería"}
           fill
           sizes="(min-width: 1024px) 80vw, 100vw"
-          className="object-cover transition-opacity duration-500"
+          className="object-contain transition-opacity duration-500"
           unoptimized={process.env.NODE_ENV === "development"}
           priority={indice === 0}
         />
