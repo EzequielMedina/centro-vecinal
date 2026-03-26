@@ -321,6 +321,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          ip_address: string
+          max_intentos?: number
+          ventana_minutos?: number
+        }
+        Returns: boolean
+      }
       insert_servicio_with_orden: {
         Args: {
           p_activo: boolean

@@ -11,7 +11,8 @@ type Props = {
 }
 
 export function NotificacionContactoEmail({ nombre, email, asunto, mensaje, mensajeId }: Props) {
-  const panelUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/admin/contacto/${mensajeId}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  const panelUrl = `${baseUrl}/admin/contacto/${mensajeId}`
 
   return (
     <Html lang="es">

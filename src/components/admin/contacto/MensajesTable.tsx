@@ -24,6 +24,7 @@ export function MensajesTable({ mensajes }: Props) {
         <Link
           key={m.id}
           href={`/admin/contacto/${m.id}`}
+          prefetch={false}
           className={cn(
             "flex items-start gap-4 px-4 py-3.5 transition-colors hover:bg-muted/50",
             !m.leido && "bg-amber-50/60 dark:bg-amber-950/20"

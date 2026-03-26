@@ -3,6 +3,7 @@
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { ContactoSchema } from "@/lib/validations/contacto"
 import { checkRateLimit } from "@/lib/utils/rateLimit"
 import { NotificacionContactoEmail } from "@/lib/email/notificacion-contacto"
@@ -37,8 +38,10 @@ export async function enviarMensaje(formData: FormData): Promise<ActionResult> {
     return { error: "Demasiados intentos. Intentá de nuevo en 10 minutos." }
   }
 
-  const supabase = await createClient()
-  const { data: inserted, error } = await supabase
+  // INSERT con service_role: la policy pública fue reemplazada por una
+  // de service_role para evitar que se bypass-ee el rate limiting vía anon key.
+  const adminSupabase = createAdminClient()
+  const { data: inserted, error } = await adminSupabase
     .from("contacto_mensajes")
     .insert({ ...parsed.data, ip })
     .select("id")

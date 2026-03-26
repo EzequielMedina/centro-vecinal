@@ -4,8 +4,8 @@ import { es } from "date-fns/locale"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getMensajeById } from "@/lib/queries/contacto"
-import { createClient } from "@/lib/supabase/server"
 import { MensajeDetalleActions } from "@/components/admin/contacto/MensajeDetalleActions"
+import { MarcarLeidoOnMount } from "@/components/admin/contacto/MarcarLeidoOnMount"
 import { Button } from "@/components/ui/button"
 
 export const metadata = { title: "Detalle de Mensaje — Admin" }
@@ -17,16 +17,11 @@ export default async function MensajeDetallePage({ params }: Props) {
   const mensaje = await getMensajeById(id)
   if (!mensaje) notFound()
 
-  // Marcar como leído automáticamente al abrir.
-  // Se hace directo (sin Server Action) porque revalidatePath no puede
-  // llamarse durante el render de un Server Component.
-  if (!mensaje.leido) {
-    const supabase = await createClient()
-    await supabase.from("contacto_mensajes").update({ leido: true }).eq("id", id)
-  }
-
   return (
     <div className="space-y-6">
+      {/* Marca como leído en el cliente para evitar que el prefetch de next/link
+          dispare la mutación antes de que el admin abra realmente el mensaje. */}
+      {!mensaje.leido && <MarcarLeidoOnMount mensajeId={mensaje.id} />}
       <div className="flex items-center gap-3">
         <Link href="/admin/contacto">
           <Button variant="ghost" size="sm">
