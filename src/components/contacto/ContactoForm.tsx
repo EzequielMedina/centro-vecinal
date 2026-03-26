@@ -54,6 +54,9 @@ export function ContactoForm() {
         <p className="text-muted-foreground text-sm max-w-xs">
           Tu mensaje fue enviado correctamente. Te responderemos pronto.
         </p>
+        <Button variant="outline" size="sm" onClick={() => setEnviado(false)}>
+          Enviar otro mensaje
+        </Button>
       </div>
     )
   }
