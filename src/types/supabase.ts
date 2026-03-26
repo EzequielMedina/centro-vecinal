@@ -85,60 +85,6 @@ export type Database = {
         }
         Relationships: []
       }
-      contenido_institucional: {
-        Row: {
-          id: string
-          seccion: "historia" | "mision" | "valores"
-          contenido: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          seccion: "historia" | "mision" | "valores"
-          contenido?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          seccion?: "historia" | "mision" | "valores"
-          contenido?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      equipo_miembros: {
-        Row: {
-          id: string
-          nombre: string
-          cargo: string
-          foto_url: string | null
-          orden: number
-          activo: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          nombre: string
-          cargo: string
-          foto_url?: string | null
-          orden?: number
-          activo?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          nombre?: string
-          cargo?: string
-          foto_url?: string | null
-          orden?: number
-          activo?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       admin_users: {
         Row: {
           created_at: string
@@ -195,6 +141,93 @@ export type Database = {
           imagen_url?: string | null
           slug?: string
           titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contacto_mensajes: {
+        Row: {
+          asunto: string
+          created_at: string
+          email: string
+          id: string
+          ip: string | null
+          leido: boolean
+          mensaje: string
+          nombre: string
+        }
+        Insert: {
+          asunto: string
+          created_at?: string
+          email: string
+          id?: string
+          ip?: string | null
+          leido?: boolean
+          mensaje: string
+          nombre: string
+        }
+        Update: {
+          asunto?: string
+          created_at?: string
+          email?: string
+          id?: string
+          ip?: string | null
+          leido?: boolean
+          mensaje?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      contenido_institucional: {
+        Row: {
+          contenido: string
+          id: string
+          seccion: string
+          updated_at: string
+        }
+        Insert: {
+          contenido?: string
+          id?: string
+          seccion: string
+          updated_at?: string
+        }
+        Update: {
+          contenido?: string
+          id?: string
+          seccion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      equipo_miembros: {
+        Row: {
+          activo: boolean
+          cargo: string
+          created_at: string
+          foto_url: string | null
+          id: string
+          nombre: string
+          orden: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          cargo: string
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nombre: string
+          orden?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          cargo?: string
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nombre?: string
+          orden?: number
           updated_at?: string
         }
         Relationships: []
@@ -290,10 +323,10 @@ export type Database = {
     Functions: {
       insert_servicio_with_orden: {
         Args: {
-          p_nombre: string
+          p_activo: boolean
           p_descripcion: string
           p_icono: string
-          p_activo: boolean
+          p_nombre: string
         }
         Returns: string
       }
