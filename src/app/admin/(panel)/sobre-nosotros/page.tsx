@@ -1,9 +1,16 @@
+import dynamic from "next/dynamic"
 import { getContenidoInstitucional, getAllEquipoAdmin } from "@/lib/queries/institucional"
 import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from "@/components/ui/tabs"
 import { EditorSeccion } from "@/components/admin/sobre-nosotros/EditorSeccion"
-import { EquipoAdminList } from "@/components/admin/sobre-nosotros/EquipoAdminList"
+
+// @dnd-kit genera IDs de accesibilidad (DndDescribedBy-N) que difieren entre
+// servidor y cliente, causando hydration mismatch. Con ssr: false se evita.
+const EquipoAdminList = dynamic(
+  () => import("@/components/admin/sobre-nosotros/EquipoAdminList").then((m) => ({ default: m.EquipoAdminList })),
+  { ssr: false }
+)
 
 export const metadata = { title: "Sobre Nosotros — Admin" }
 
