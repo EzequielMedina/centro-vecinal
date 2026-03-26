@@ -10,41 +10,72 @@ import type { ImagenGaleria } from "@/lib/queries/galeria"
 type Props = { imagenes: ImagenGaleria[] }
 
 const INTERVALO_MS = 4500
-// Cada slide ocupa este % del contenedor. El resto asoma a los costados.
-const SLIDE_W = 62
+const SLIDE_W      = 62   // % del contenedor que ocupa cada slide
+const ANIM_MS      = 600  // duración de la transición
 
 export function GaleriaPreviewSection({ imagenes }: Props) {
-  const [indice, setIndice] = useState(0)
+  // Infinite loop: se clonan el primer y último slide en los extremos del track.
+  // realSlides = [clone_last, ...imagenes, clone_first]
+  // trackIndex va de 0 a realSlides.length-1; índice 1 = primer slide real.
+  const [trackIndex, setTrackIndex]         = useState(1)
+  const [withTransition, setWithTransition] = useState(true)
   const blockedRef = useRef(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const t1Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const t2Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const go = useCallback(
-    (next: number) => {
-      if (blockedRef.current) return
-      blockedRef.current = true
-      setIndice(next)
-      timerRef.current = setTimeout(() => { blockedRef.current = false }, 650)
-    },
-    []
-  )
+  const n = imagenes.length
+  // Índice real del slide visible (para dots y estilos)
+  const realIndex =
+    trackIndex === 0     ? n - 1 :
+    trackIndex === n + 1 ? 0     :
+    trackIndex - 1
 
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
+  const snapIfClone = useCallback((nextTrack: number) => {
+    // Si el track quedó en un clon, saltar sin animación al slide real
+    if (nextTrack === 0) {
+      setWithTransition(false)
+      setTrackIndex(n)
+      t2Ref.current = setTimeout(() => setWithTransition(true), 20)
+    } else if (nextTrack === n + 1) {
+      setWithTransition(false)
+      setTrackIndex(1)
+      t2Ref.current = setTimeout(() => setWithTransition(true), 20)
+    }
+  }, [n])
 
-  const anterior = useCallback(() => go((indice - 1 + imagenes.length) % imagenes.length), [go, indice, imagenes.length])
-  const siguiente = useCallback(() => go((indice + 1) % imagenes.length), [go, indice, imagenes.length])
+  const go = useCallback((nextTrack: number) => {
+    if (blockedRef.current) return
+    blockedRef.current = true
+    setWithTransition(true)
+    setTrackIndex(nextTrack)
+    t1Ref.current = setTimeout(() => {
+      blockedRef.current = false
+      snapIfClone(nextTrack)
+    }, ANIM_MS + 50)
+  }, [snapIfClone])
+
+  useEffect(() => () => {
+    if (t1Ref.current) clearTimeout(t1Ref.current)
+    if (t2Ref.current) clearTimeout(t2Ref.current)
+  }, [])
+
+  const anterior = useCallback(() => go(trackIndex - 1), [go, trackIndex])
+  const siguiente = useCallback(() => go(trackIndex + 1), [go, trackIndex])
 
   useEffect(() => {
-    if (imagenes.length <= 1) return
+    if (n <= 1) return
     const id = setInterval(siguiente, INTERVALO_MS)
     return () => clearInterval(id)
-  }, [siguiente, imagenes.length])
+  }, [siguiente, n])
 
-  if (imagenes.length === 0) return null
+  if (n === 0) return null
 
-  // El track se desplaza para centrar el slide activo.
-  // offset inicial centra el primer slide: (100 - SLIDE_W) / 2
-  const offset = (100 - SLIDE_W) / 2
-  const translateX = offset - indice * SLIDE_W
+  const realSlides = [imagenes[n - 1], ...imagenes, imagenes[0]]
+  const prevRealIdx = (realIndex - 1 + n) % n
+  const nextRealIdx = (realIndex + 1) % n
+
+  const offset     = (100 - SLIDE_W) / 2
+  const translateX = offset - trackIndex * SLIDE_W
 
   return (
     <section className="container mx-auto px-4 py-8 space-y-4">
@@ -55,27 +86,39 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
         </Link>
       </div>
 
-      <div className="relative group">
-        {/* Viewport — oculta lo que sale del contenedor */}
+      <div className="relative">
+        {/* Viewport */}
         <div className="overflow-hidden">
-          {/* Track — se desliza con translateX */}
+          {/* Track */}
           <div
-            className="flex transition-transform duration-[600ms] ease-in-out"
-            style={{ transform: `translateX(${translateX}%)` }}
+            className="flex"
+            style={{
+              transform:  `translateX(${translateX}%)`,
+              transition: withTransition ? `transform ${ANIM_MS}ms ease-in-out` : "none",
+            }}
           >
-            {imagenes.map((img, i) => {
-              const isCurrent = i === indice
-              const isPrev   = i < indice
-              const isNext   = i > indice
+            {realSlides.map((img, i) => {
+              // Índice real de este slot en el track
+              const slotReal =
+                i === 0     ? n - 1 :
+                i === n + 1 ? 0     :
+                i - 1
+
+              const isCurrent = slotReal === realIndex
+              const isPrev    = slotReal === prevRealIdx && !isCurrent
+              const isNext    = slotReal === nextRealIdx && !isCurrent
+
               return (
                 <div
-                  key={img.id}
+                  key={i}
                   style={{ width: `${SLIDE_W}%`, flexShrink: 0 }}
                   className={cn(
-                    "relative aspect-[16/9] rounded-xl overflow-hidden transition-all duration-[600ms] ease-in-out px-1.5",
+                    "relative aspect-[16/9] rounded-xl overflow-hidden px-1.5",
+                    "transition-all duration-[600ms] ease-in-out",
                     isCurrent && "scale-100 opacity-100 z-10",
                     isPrev    && "scale-50 opacity-50 translate-x-[50%]",
                     isNext    && "scale-50 opacity-50 -translate-x-[50%]",
+                    !isCurrent && !isPrev && !isNext && "scale-50 opacity-0",
                   )}
                 >
                   <div className="relative w-full h-full rounded-xl overflow-hidden">
@@ -101,45 +144,33 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
         </div>
 
         {/* Flechas */}
-        {imagenes.length > 1 && (
+        {n > 1 && (
           <>
-            <button
-              type="button"
-              onClick={anterior}
-              aria-label="Imagen anterior"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors"
-            >
+            <button type="button" onClick={anterior} aria-label="Imagen anterior"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors">
               <ChevronLeft size={16} />
             </button>
-            <button
-              type="button"
-              onClick={siguiente}
-              aria-label="Imagen siguiente"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors"
-            >
+            <button type="button" onClick={siguiente} aria-label="Imagen siguiente"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-background/80 border shadow-sm hover:bg-background transition-colors">
               <ChevronRight size={16} />
             </button>
           </>
         )}
       </div>
 
-      {(imagenes[indice].titulo || imagenes[indice].descripcion) && (
+      {(imagenes[realIndex].titulo || imagenes[realIndex].descripcion) && (
         <div className="text-center space-y-1 px-4">
-          {imagenes[indice].titulo && <p className="font-medium text-foreground">{imagenes[indice].titulo}</p>}
-          {imagenes[indice].descripcion && <p className="text-sm text-muted-foreground">{imagenes[indice].descripcion}</p>}
+          {imagenes[realIndex].titulo && <p className="font-medium text-foreground">{imagenes[realIndex].titulo}</p>}
+          {imagenes[realIndex].descripcion && <p className="text-sm text-muted-foreground">{imagenes[realIndex].descripcion}</p>}
         </div>
       )}
 
       <div className="flex items-center justify-center gap-1.5">
         {imagenes.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => go(i)}
-            aria-label={`Ir a imagen ${i + 1}`}
+          <button key={i} type="button" onClick={() => go(i + 1)} aria-label={`Ir a imagen ${i + 1}`}
             className={cn(
               "rounded-full transition-all duration-300",
-              i === indice ? "w-5 h-1.5 bg-primary" : "w-1.5 h-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+              i === realIndex ? "w-5 h-1.5 bg-primary" : "w-1.5 h-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
             )}
           />
         ))}
