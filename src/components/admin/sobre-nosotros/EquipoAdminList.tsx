@@ -133,12 +133,19 @@ export function EquipoAdminList({ initialMiembros }: Props) {
   const [miembros, setMiembros] = useState(initialMiembros)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editando, setEditando] = useState<MiembroEquipo | undefined>(undefined)
+  const [isClient, setIsClient] = useState(false)
   const isSavingRef = useRef(false)
 
   // Sincronizar estado local cuando router.refresh() trae nuevos datos del Server Component
   useEffect(() => {
     setMiembros(initialMiembros)
   }, [initialMiembros])
+
+  // @dnd-kit genera IDs de accesibilidad distintos en servidor y cliente.
+  // Solo renderizamos DndContext en el cliente para evitar hydration mismatch.
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -207,7 +214,7 @@ export function EquipoAdminList({ initialMiembros }: Props) {
 
       {miembros.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No hay miembros. Agregá el primero.</p>
-      ) : (
+      ) : isClient ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={miembros.map((m) => m.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-2">
@@ -223,6 +230,18 @@ export function EquipoAdminList({ initialMiembros }: Props) {
             </div>
           </SortableContext>
         </DndContext>
+      ) : (
+        <div className="space-y-2">
+          {miembros.map((miembro) => (
+            <MiembroRow
+              key={miembro.id}
+              miembro={miembro}
+              onToggle={handleToggle}
+              onDeleted={handleDeleted}
+              onEdit={handleEdit}
+            />
+          ))}
+        </div>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
