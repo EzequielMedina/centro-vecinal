@@ -26,7 +26,7 @@ export default async function MensajeDetallePage({ params }: Props) {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/admin/contacto">
           <Button variant="ghost" size="sm">
