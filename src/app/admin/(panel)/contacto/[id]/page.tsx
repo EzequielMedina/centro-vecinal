@@ -4,7 +4,7 @@ import { es } from "date-fns/locale"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getMensajeById } from "@/lib/queries/contacto"
-import { marcarLeido } from "@/lib/actions/contacto"
+import { createClient } from "@/lib/supabase/server"
 import { MensajeDetalleActions } from "@/components/admin/contacto/MensajeDetalleActions"
 import { Button } from "@/components/ui/button"
 
@@ -17,9 +17,12 @@ export default async function MensajeDetallePage({ params }: Props) {
   const mensaje = await getMensajeById(id)
   if (!mensaje) notFound()
 
-  // Marcar como leído automáticamente al abrir
+  // Marcar como leído automáticamente al abrir.
+  // Se hace directo (sin Server Action) porque revalidatePath no puede
+  // llamarse durante el render de un Server Component.
   if (!mensaje.leido) {
-    await marcarLeido(id)
+    const supabase = await createClient()
+    await supabase.from("contacto_mensajes").update({ leido: true }).eq("id", id)
   }
 
   return (
