@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import {
@@ -134,6 +134,11 @@ export function EquipoAdminList({ initialMiembros }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editando, setEditando] = useState<MiembroEquipo | undefined>(undefined)
   const isSavingRef = useRef(false)
+
+  // Sincronizar estado local cuando router.refresh() trae nuevos datos del Server Component
+  useEffect(() => {
+    setMiembros(initialMiembros)
+  }, [initialMiembros])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
