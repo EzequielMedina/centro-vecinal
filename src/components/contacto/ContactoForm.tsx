@@ -23,6 +23,7 @@ export function ContactoForm() {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ContactoFormValues>({
     resolver: zodResolver(ContactoSchema),
@@ -54,7 +55,7 @@ export function ContactoForm() {
         <p className="text-muted-foreground text-sm max-w-xs">
           Tu mensaje fue enviado correctamente. Te responderemos pronto.
         </p>
-        <Button variant="outline" size="sm" onClick={() => setEnviado(false)}>
+        <Button variant="outline" size="sm" onClick={() => { reset(); setEnviado(false) }}>
           Enviar otro mensaje
         </Button>
       </div>
