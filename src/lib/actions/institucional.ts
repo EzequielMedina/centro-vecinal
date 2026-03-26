@@ -127,12 +127,18 @@ export async function createMiembro(formData: FormData): Promise<ActionResult> {
   }
 
   // orden = MAX(orden) + 1 — concurrencia aceptable (único admin por sesión)
-  const { data: maxRow } = await supabase
+  const { data: maxRow, error: maxRowError } = await supabase
     .from("equipo_miembros")
     .select("orden")
     .order("orden", { ascending: false })
     .limit(1)
     .single()
+
+  if (maxRowError && maxRowError.code !== "PGRST116") {
+    console.error("[createMiembro] Error al obtener orden máximo", maxRowError.message)
+    if (foto_url) await deleteFotoFromStorage(foto_url)
+    return { error: "Error al crear el miembro" }
+  }
 
   const orden = (maxRow?.orden ?? -1) + 1
 
@@ -165,37 +171,32 @@ export async function updateMiembro(id: string, formData: FormData): Promise<Act
   }
 
   const removeFoto = formData.get("remove_foto") === "true"
-  let fotoUpdate: { foto_url: string | null } | undefined
-
   const fotoFile = formData.get("foto")
-  if (fotoFile instanceof File && fotoFile.size > 0) {
-    // Nueva foto: subir y eliminar la anterior
+
+  // Obtener foto anterior una sola vez, solo si vamos a modificar la foto
+  let fotoAnterior: string | null = null
+  if ((fotoFile instanceof File && fotoFile.size > 0) || removeFoto) {
     const { data: existing } = await supabase
       .from("equipo_miembros")
       .select("foto_url")
       .eq("id", id)
       .single()
+    fotoAnterior = existing?.foto_url ?? null
+  }
 
-    let newUrl: string
+  // Subir nueva foto antes del UPDATE (no se puede evitar, pero si DB falla la limpiamos)
+  let nuevaUrl: string | null = null
+  if (fotoFile instanceof File && fotoFile.size > 0) {
     try {
-      newUrl = await uploadFoto(fotoFile)
+      nuevaUrl = await uploadFoto(fotoFile)
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al subir la foto" }
     }
-
-    if (existing?.foto_url) await deleteFotoFromStorage(existing.foto_url)
-    fotoUpdate = { foto_url: newUrl }
-  } else if (removeFoto) {
-    // Quitar foto existente: eliminar de Storage y setear null en DB
-    const { data: existing } = await supabase
-      .from("equipo_miembros")
-      .select("foto_url")
-      .eq("id", id)
-      .single()
-
-    if (existing?.foto_url) await deleteFotoFromStorage(existing.foto_url)
-    fotoUpdate = { foto_url: null }
   }
+
+  let fotoUpdate: { foto_url: string | null } | undefined
+  if (nuevaUrl !== null) fotoUpdate = { foto_url: nuevaUrl }
+  else if (removeFoto) fotoUpdate = { foto_url: null }
 
   const { error } = await supabase
     .from("equipo_miembros")
@@ -204,8 +205,14 @@ export async function updateMiembro(id: string, formData: FormData): Promise<Act
 
   if (error) {
     console.error("[updateMiembro]", error.message)
-    if (fotoUpdate?.foto_url) await deleteFotoFromStorage(fotoUpdate.foto_url)
+    // DB falló: limpiar foto nueva para evitar huérfanos en Storage
+    if (nuevaUrl) await deleteFotoFromStorage(nuevaUrl)
     return { error: "Error al actualizar el miembro" }
+  }
+
+  // DB OK: recién ahora es seguro eliminar la foto anterior
+  if (fotoAnterior && (nuevaUrl !== null || removeFoto)) {
+    await deleteFotoFromStorage(fotoAnterior)
   }
 
   revalidateAll()
