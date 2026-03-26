@@ -18,11 +18,18 @@ export async function getContenidoInstitucional(): Promise<ContenidoMap> {
     throw new Error("Error al obtener el contenido institucional")
   }
 
-  const map = {} as ContenidoMap
+  // Inicializar con placeholders para garantizar que las 3 keys siempre existan,
+  // incluso si la tabla está vacía o falta alguna fila.
+  const fallbackDate = new Date().toISOString()
+  const map: ContenidoMap = {
+    historia: { contenido: DEFAULT_CONTENT.historia, updated_at: fallbackDate },
+    mision:   { contenido: DEFAULT_CONTENT.mision,   updated_at: fallbackDate },
+    valores:  { contenido: DEFAULT_CONTENT.valores,   updated_at: fallbackDate },
+  }
+
   for (const row of data) {
     const key = row.seccion as SeccionKey
     map[key] = {
-      // Si el contenido está vacío, usar el placeholder
       contenido: row.contenido.trim() || DEFAULT_CONTENT[key],
       updated_at: row.updated_at,
     }

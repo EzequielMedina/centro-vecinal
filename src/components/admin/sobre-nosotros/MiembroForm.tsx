@@ -21,7 +21,9 @@ export function MiembroForm({ miembro, onDone }: Props) {
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
   const [fotoPreview, setFotoPreview] = useState<string | null>(miembro?.foto_url ?? null)
+  const [removeFoto, setRemoveFoto] = useState(false)
   const blobUrlRef = useRef<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     return () => {
@@ -36,12 +38,26 @@ export function MiembroForm({ miembro, onDone }: Props) {
     const url = URL.createObjectURL(file)
     blobUrlRef.current = url
     setFotoPreview(url)
+    setRemoveFoto(false)
+  }
+
+  const handleQuitarFoto = () => {
+    // Limpiar el input para que el archivo no se incluya en el FormData
+    if (fileInputRef.current) fileInputRef.current.value = ""
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current)
+      blobUrlRef.current = null
+    }
+    setFotoPreview(null)
+    // Señalar al server que debe eliminar la foto existente
+    setRemoveFoto(true)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setServerError(null)
     const formData = new FormData(e.currentTarget)
+    if (removeFoto) formData.set("remove_foto", "true")
 
     startTransition(async () => {
       const result = isEditing
@@ -98,7 +114,7 @@ export function MiembroForm({ miembro, onDone }: Props) {
               <Image src={fotoPreview} alt="Preview" fill sizes="64px" className="object-cover" />
               <button
                 type="button"
-                onClick={() => setFotoPreview(null)}
+                onClick={handleQuitarFoto}
                 className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                 aria-label="Quitar foto"
               >
@@ -113,6 +129,7 @@ export function MiembroForm({ miembro, onDone }: Props) {
             </div>
           )}
           <Input
+            ref={fileInputRef}
             id="foto"
             name="foto"
             type="file"

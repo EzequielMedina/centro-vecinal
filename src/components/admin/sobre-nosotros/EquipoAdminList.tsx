@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -128,6 +129,7 @@ function MiembroRow({
 type Props = { initialMiembros: MiembroEquipo[] }
 
 export function EquipoAdminList({ initialMiembros }: Props) {
+  const router = useRouter()
   const [miembros, setMiembros] = useState(initialMiembros)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editando, setEditando] = useState<MiembroEquipo | undefined>(undefined)
@@ -179,9 +181,8 @@ export function EquipoAdminList({ initialMiembros }: Props) {
   const handleDialogDone = () => {
     setDialogOpen(false)
     setEditando(undefined)
-    // El Server Action ya llamó revalidatePath — next.js re-fetcheará en el próximo navigate
-    // Para reflejar cambios inmediatamente forzamos un reload suave del estado:
-    window.location.reload()
+    // Refresca los Server Components sin perder estado del cliente ni recargar la página
+    router.refresh()
   }
 
   const handleNuevo = () => {

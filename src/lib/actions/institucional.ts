@@ -164,35 +164,47 @@ export async function updateMiembro(id: string, formData: FormData): Promise<Act
     return { error: first ?? "Datos inválidos" }
   }
 
-  let foto_url: string | undefined
+  const removeFoto = formData.get("remove_foto") === "true"
+  let fotoUpdate: { foto_url: string | null } | undefined
+
   const fotoFile = formData.get("foto")
   if (fotoFile instanceof File && fotoFile.size > 0) {
-    // Obtener la foto anterior para eliminarla
+    // Nueva foto: subir y eliminar la anterior
     const { data: existing } = await supabase
       .from("equipo_miembros")
       .select("foto_url")
       .eq("id", id)
       .single()
 
+    let newUrl: string
     try {
-      foto_url = await uploadFoto(fotoFile)
+      newUrl = await uploadFoto(fotoFile)
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al subir la foto" }
     }
 
-    if (existing?.foto_url) {
-      await deleteFotoFromStorage(existing.foto_url)
-    }
+    if (existing?.foto_url) await deleteFotoFromStorage(existing.foto_url)
+    fotoUpdate = { foto_url: newUrl }
+  } else if (removeFoto) {
+    // Quitar foto existente: eliminar de Storage y setear null en DB
+    const { data: existing } = await supabase
+      .from("equipo_miembros")
+      .select("foto_url")
+      .eq("id", id)
+      .single()
+
+    if (existing?.foto_url) await deleteFotoFromStorage(existing.foto_url)
+    fotoUpdate = { foto_url: null }
   }
 
   const { error } = await supabase
     .from("equipo_miembros")
-    .update({ ...parsed.data, ...(foto_url !== undefined && { foto_url }) })
+    .update({ ...parsed.data, ...fotoUpdate })
     .eq("id", id)
 
   if (error) {
     console.error("[updateMiembro]", error.message)
-    if (foto_url) await deleteFotoFromStorage(foto_url)
+    if (fotoUpdate?.foto_url) await deleteFotoFromStorage(fotoUpdate.foto_url)
     return { error: "Error al actualizar el miembro" }
   }
 

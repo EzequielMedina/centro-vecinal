@@ -3,6 +3,8 @@
 -- Página "Sobre Nosotros"
 -- ============================================================
 
+CREATE EXTENSION IF NOT EXISTS moddatetime;
+
 -- ── contenido_institucional ───────────────────────────────
 CREATE TABLE public.contenido_institucional (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
