@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import Link from "next/link"
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -125,6 +125,7 @@ type Props = { initialServicios: Servicio[] }
 
 export function ServiciosAdminList({ initialServicios }: Props) {
   const [servicios, setServicios] = useState(initialServicios)
+  const isSavingRef = useRef(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -134,18 +135,23 @@ export function ServiciosAdminList({ initialServicios }: Props) {
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
+    if (isSavingRef.current) return
 
     const oldIndex = servicios.findIndex((s) => s.id === active.id)
     const newIndex = servicios.findIndex((s) => s.id === over.id)
     if (oldIndex === -1 || newIndex === -1) return
 
+    const snapshot = servicios
     const reordered = arrayMove(servicios, oldIndex, newIndex)
     setServicios(reordered)
 
+    isSavingRef.current = true
     const result = await updateOrden(reordered.map((s) => s.id))
+    isSavingRef.current = false
+
     if ("error" in result) {
       toast.error(result.error)
-      setServicios(servicios)
+      setServicios(snapshot)
     } else {
       toast.success("Orden guardado")
     }

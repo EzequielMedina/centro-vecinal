@@ -25,7 +25,11 @@ export async function getServicioById(id: string): Promise<Servicio | null> {
     .eq("id", id)
     .single()
 
-  if (error) return null
+  if (error) {
+    if (error.code === "PGRST116") return null
+    console.error("[getServicioById]", error.message)
+    throw new Error("Error al obtener el servicio")
+  }
   return data
 }
 

@@ -1,8 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { IconSelector } from "./IconSelector"
 import { createServicio, updateServicio } from "@/lib/actions/servicios"
 import { toast } from "sonner"
@@ -15,62 +19,64 @@ type Props = {
 export function ServicioForm({ servicio }: Props) {
   const router = useRouter()
   const isEditing = !!servicio
+  const [isPending, startTransition] = useTransition()
 
   const [icono, setIcono] = useState(servicio?.icono ?? "Star")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    setServerError(null)
 
     const formData = new FormData(e.currentTarget)
     formData.set("icono", icono)
 
-    const result = isEditing
-      ? await updateServicio(servicio.id, formData)
-      : await createServicio(formData)
+    startTransition(async () => {
+      const result = isEditing
+        ? await updateServicio(servicio.id, formData)
+        : await createServicio(formData)
 
-    setLoading(false)
+      if ("error" in result) {
+        setServerError(result.error)
+        return
+      }
 
-    if ("error" in result) {
-      setError(result.error)
-      return
-    }
-
-    toast.success(isEditing ? "Servicio actualizado" : "Servicio creado")
-    router.push("/admin/servicios")
+      toast.success(isEditing ? "Servicio actualizado" : "Servicio creado")
+      router.push("/admin/servicios")
+    })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
-      {error && (
-        <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
+      {serverError && (
+        <Alert variant="destructive">
+          <AlertDescription>{serverError}</AlertDescription>
+        </Alert>
       )}
 
       <div className="space-y-1.5">
-        <label htmlFor="nombre" className="text-sm font-medium">Nombre</label>
-        <input
+        <Label htmlFor="nombre">Nombre</Label>
+        <Input
           id="nombre"
           name="nombre"
           defaultValue={servicio?.nombre}
           required
+          disabled={isPending}
           data-gramm="false"
-          className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="descripcion" className="text-sm font-medium">Descripción</label>
+        <Label htmlFor="descripcion">Descripción</Label>
         <textarea
           id="descripcion"
           name="descripcion"
           defaultValue={servicio?.descripcion}
           rows={3}
           required
+          disabled={isPending}
           data-gramm="false"
-          className="w-full px-3 py-2 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+          className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
 
@@ -86,20 +92,22 @@ export function ServicioForm({ servicio }: Props) {
           type="checkbox"
           defaultChecked={servicio?.activo ?? true}
           value="true"
-          className="rounded border"
+          disabled={isPending}
+          className="rounded border disabled:opacity-50"
           onChange={(e) => {
             const input = e.currentTarget.form?.elements.namedItem("activo") as HTMLInputElement
             if (input) input.value = e.currentTarget.checked ? "true" : "false"
           }}
         />
-        <label htmlFor="activo" className="text-sm font-medium">Activo</label>
+        <Label htmlFor="activo">Activo</Label>
       </div>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando…" : isEditing ? "Guardar cambios" : "Crear servicio"}
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2 size={14} className="mr-2 animate-spin" />}
+          {isEditing ? "Guardar cambios" : "Crear servicio"}
         </Button>
-        <Button type="button" variant="ghost" onClick={() => router.push("/admin/servicios")}>
+        <Button type="button" variant="ghost" disabled={isPending} onClick={() => router.push("/admin/servicios")}>
           Cancelar
         </Button>
       </div>

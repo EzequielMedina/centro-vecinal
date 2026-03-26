@@ -41,19 +41,14 @@ export async function createServicio(formData: FormData): Promise<ActionResult> 
     return { error: first ?? "Datos inválidos" }
   }
 
-  // orden = MAX(orden) + 1
-  const { data: maxRow } = await supabase
-    .from("servicios")
-    .select("orden")
-    .order("orden", { ascending: false })
-    .limit(1)
-    .single()
-
-  const orden = (maxRow?.orden ?? -1) + 1
-
-  const { error } = await supabase
-    .from("servicios")
-    .insert({ ...parsed.data, orden })
+  // La asignación de orden se delega a una función DB para garantizar
+  // atomicidad y evitar duplicados ante inserciones concurrentes.
+  const { error } = await supabase.rpc("insert_servicio_with_orden", {
+    p_nombre: parsed.data.nombre,
+    p_descripcion: parsed.data.descripcion,
+    p_icono: parsed.data.icono,
+    p_activo: parsed.data.activo,
+  })
 
   if (error) {
     console.error("[createServicio]", error.message)
