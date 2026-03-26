@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { signOut } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { UnreadBadge } from "@/components/admin/contacto/UnreadBadge"
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -33,7 +34,7 @@ const adminItems = [
   { href: "/admin/usuarios", label: "Usuarios", icon: Users },
 ]
 
-export function AdminSidebar() {
+export function AdminSidebar({ unreadContacto = 0 }: { unreadContacto?: number }) {
   const pathname = usePathname()
 
   return (
@@ -68,6 +69,7 @@ export function AdminSidebar() {
           >
             <Icon size={17} />
             {label}
+            {href === "/admin/contacto" && <UnreadBadge count={unreadContacto} />}
           </Link>
         ))}
 
