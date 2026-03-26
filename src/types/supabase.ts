@@ -85,6 +85,60 @@ export type Database = {
         }
         Relationships: []
       }
+      contenido_institucional: {
+        Row: {
+          id: string
+          seccion: "historia" | "mision" | "valores"
+          contenido: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seccion: "historia" | "mision" | "valores"
+          contenido?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seccion?: "historia" | "mision" | "valores"
+          contenido?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      equipo_miembros: {
+        Row: {
+          id: string
+          nombre: string
+          cargo: string
+          foto_url: string | null
+          orden: number
+          activo: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          nombre: string
+          cargo: string
+          foto_url?: string | null
+          orden?: number
+          activo?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          nombre?: string
+          cargo?: string
+          foto_url?: string | null
+          orden?: number
+          activo?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
