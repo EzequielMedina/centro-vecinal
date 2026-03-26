@@ -225,7 +225,7 @@ export function EquipoAdminList({ initialMiembros }: Props) {
           <DialogHeader>
             <DialogTitle>{editando ? "Editar miembro" : "Agregar miembro"}</DialogTitle>
           </DialogHeader>
-          <MiembroForm miembro={editando} onDone={handleDialogDone} />
+          <MiembroForm key={editando?.id ?? "nuevo"} miembro={editando} onDone={handleDialogDone} />
         </DialogContent>
       </Dialog>
     </div>
