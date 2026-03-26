@@ -234,7 +234,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      insert_servicio_with_orden: {
+        Args: {
+          p_nombre: string
+          p_descripcion: string
+          p_icono: string
+          p_activo: boolean
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
