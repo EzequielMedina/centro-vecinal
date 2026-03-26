@@ -3,11 +3,13 @@ import { getAvisosDestacados } from "@/lib/queries/avisos"
 import { getProximasActividades } from "@/lib/queries/actividades"
 import { getServiciosActivos } from "@/lib/queries/servicios"
 import { getImagenesDestacadas } from "@/lib/queries/galeria"
+import { getContenidoInstitucional } from "@/lib/queries/institucional"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AvisosDestacadosSection } from "@/components/home/AvisosDestacadosSection"
 import { ProximasActividadesSection } from "@/components/home/ProximasActividadesSection"
 import { ServiciosResumenSection } from "@/components/home/ServiciosResumenSection"
 import { GaleriaPreviewSection } from "@/components/home/GaleriaPreviewSection"
+import { SobreNosotrosPreviewSection } from "@/components/home/SobreNosotrosPreviewSection"
 import { SectionReveal } from "@/components/home/SectionReveal"
 
 export const revalidate = 60
@@ -46,11 +48,12 @@ const jsonLd = {
 }
 
 export default async function HomePage() {
-  const [avisos, actividades, servicios, imagenesGaleria] = await Promise.all([
+  const [avisos, actividades, servicios, imagenesGaleria, contenido] = await Promise.all([
     getAvisosDestacados(),
     getProximasActividades(),
     getServiciosActivos(),
     getImagenesDestacadas(8),
+    getContenidoInstitucional(),
   ])
 
   return (
@@ -69,6 +72,9 @@ export default async function HomePage() {
       </SectionReveal>
       <SectionReveal delay={0.1}>
         <ServiciosResumenSection servicios={servicios} />
+      </SectionReveal>
+      <SectionReveal delay={0.1}>
+        <SobreNosotrosPreviewSection mision={contenido.mision.contenido} />
       </SectionReveal>
       {imagenesGaleria.length > 0 && (
         <SectionReveal delay={0.1}>
