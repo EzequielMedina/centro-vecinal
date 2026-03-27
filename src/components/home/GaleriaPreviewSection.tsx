@@ -19,19 +19,24 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
   // trackIndex va de 0 a realSlides.length-1; índice 1 = primer slide real.
   const [trackIndex, setTrackIndex]         = useState(1)
   const [withTransition, setWithTransition] = useState(true)
-  const blockedRef = useRef(false)
+  // interactionCount se incrementa en cada navegación manual para reiniciar
+  // el autoplay y que no se superponga con la acción del usuario.
+  const [interactionCount, setInteractionCount] = useState(0)
+  const blockedRef    = useRef(false)
+  const trackIndexRef = useRef(1)           // ref para el autoplay (sin stale closure)
   const t1Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
   const t2Ref = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  useEffect(() => { trackIndexRef.current = trackIndex }, [trackIndex])
+
   const n = imagenes.length
-  // Índice real del slide visible (para dots y estilos)
+  // Índice real del slide visible (para dots, título y descripción)
   const realIndex =
     trackIndex === 0     ? n - 1 :
     trackIndex === n + 1 ? 0     :
     trackIndex - 1
 
   const snapIfClone = useCallback((nextTrack: number) => {
-    // Si el track quedó en un clon, saltar sin animación al slide real
     if (nextTrack === 0) {
       setWithTransition(false)
       setTrackIndex(n)
@@ -43,11 +48,13 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
     }
   }, [n])
 
-  const go = useCallback((nextTrack: number) => {
+  const go = useCallback((nextTrack: number, isManual = false) => {
     if (blockedRef.current) return
     blockedRef.current = true
     setWithTransition(true)
     setTrackIndex(nextTrack)
+    // Reiniciar el timer del autoplay cuando el usuario navega manualmente
+    if (isManual) setInteractionCount(c => c + 1)
     t1Ref.current = setTimeout(() => {
       blockedRef.current = false
       snapIfClone(nextTrack)
@@ -59,20 +66,22 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
     if (t2Ref.current) clearTimeout(t2Ref.current)
   }, [])
 
-  const anterior = useCallback(() => go(trackIndex - 1), [go, trackIndex])
-  const siguiente = useCallback(() => go(trackIndex + 1), [go, trackIndex])
+  const anterior = useCallback(() => go(trackIndexRef.current - 1, true), [go])
+  const siguiente = useCallback(() => go(trackIndexRef.current + 1, true), [go])
 
+  // Autoplay: se reinicia cuando el usuario interactúa (interactionCount)
   useEffect(() => {
     if (n <= 1) return
-    const id = setInterval(siguiente, INTERVALO_MS)
+    const id = setInterval(
+      () => go(trackIndexRef.current + 1),
+      INTERVALO_MS
+    )
     return () => clearInterval(id)
-  }, [siguiente, n])
+  }, [go, n, interactionCount])
 
   if (n === 0) return null
 
   const realSlides = [imagenes[n - 1], ...imagenes, imagenes[0]]
-  const prevRealIdx = (realIndex - 1 + n) % n
-  const nextRealIdx = (realIndex + 1) % n
 
   const offset     = (100 - SLIDE_W) / 2
   const translateX = offset - trackIndex * SLIDE_W
@@ -98,15 +107,11 @@ export function GaleriaPreviewSection({ imagenes }: Props) {
             }}
           >
             {realSlides.map((img, i) => {
-              // Índice real de este slot en el track
-              const slotReal =
-                i === 0     ? n - 1 :
-                i === n + 1 ? 0     :
-                i - 1
-
-              const isCurrent = slotReal === realIndex
-              const isPrev    = slotReal === prevRealIdx && !isCurrent
-              const isNext    = slotReal === nextRealIdx && !isCurrent
+              // Posición en el track determina el rol visual de cada slide.
+              // slotReal solo se usa para mapear a imagen lógica (ya resuelto por realSlides[i]).
+              const isCurrent = i === trackIndex
+              const isPrev    = i === trackIndex - 1
+              const isNext    = i === trackIndex + 1
 
               return (
                 <div
