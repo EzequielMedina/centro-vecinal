@@ -56,6 +56,20 @@ export async function getProximasActividades(): Promise<Actividad[]> {
   return data
 }
 
+export async function countActividadesProximas(): Promise<number> {
+  const supabase = await createClient()
+  const { count, error } = await supabase
+    .from("actividades")
+    .select("*", { count: "exact", head: true })
+    .eq("activa", true)
+    .gte("fecha_inicio", new Date().toISOString())
+  if (error) {
+    console.error("[countActividadesProximas]", error.message)
+    return 0
+  }
+  return count ?? 0
+}
+
 export async function getAllActividadesAdmin(): Promise<Actividad[]> {
   const supabase = await createClient()
   const { data, error } = await supabase

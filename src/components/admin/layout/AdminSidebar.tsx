@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import Image from "next/image"
@@ -36,6 +37,19 @@ const adminItems = [
 
 export function AdminSidebar({ unreadContacto = 0 }: { unreadContacto?: number }) {
   const pathname = usePathname()
+  const [totalUnread, setTotalUnread] = useState(unreadContacto)
+
+  // Sincronizar con el valor canónico del servidor (ej: después de marcar como leído)
+  useEffect(() => {
+    setTotalUnread(unreadContacto)
+  }, [unreadContacto])
+
+  // Incrementar badge de forma inmediata cuando llega un mensaje nuevo
+  useEffect(() => {
+    const handler = () => setTotalUnread((c) => c + 1)
+    window.addEventListener("contacto:nuevo-mensaje", handler)
+    return () => window.removeEventListener("contacto:nuevo-mensaje", handler)
+  }, [])
 
   return (
     <aside className="hidden md:flex flex-col w-64 min-h-screen bg-primary text-primary-foreground">
@@ -69,7 +83,7 @@ export function AdminSidebar({ unreadContacto = 0 }: { unreadContacto?: number }
           >
             <Icon size={17} />
             {label}
-            {href === "/admin/contacto" && <UnreadBadge count={unreadContacto} />}
+            {href === "/admin/contacto" && <UnreadBadge count={totalUnread} />}
           </Link>
         ))}
 

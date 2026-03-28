@@ -66,6 +66,19 @@ export async function getAllAvisosAdmin(): Promise<Aviso[]> {
   return data
 }
 
+export async function countAvisosActivos(): Promise<number> {
+  const supabase = await createClient()
+  const { count, error } = await supabase
+    .from("avisos")
+    .select("*", { count: "exact", head: true })
+    .eq("activo", true)
+  if (error) {
+    console.error("[countAvisosActivos]", error.message)
+    return 0
+  }
+  return count ?? 0
+}
+
 export async function getAvisoByIdAdmin(id: string): Promise<Aviso | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
