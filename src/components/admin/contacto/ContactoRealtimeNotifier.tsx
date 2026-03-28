@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
-import type { ContactoMensaje } from "@/lib/queries/contacto"
+import type { Database } from "@/types/supabase"
+
+type ContactoMensajeRow = Database["public"]["Tables"]["contacto_mensajes"]["Row"]
 
 export function ContactoRealtimeNotifier() {
   const router = useRouter()
@@ -29,15 +31,15 @@ export function ContactoRealtimeNotifier() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "contacto_mensajes" },
-        (payload) => {
+        (payload: { new: ContactoMensajeRow }) => {
           console.log("[Realtime] INSERT recibido:", payload.new)
-          const msg = payload.new as ContactoMensaje
+          const msg = payload.new
           toast.info(`Nuevo mensaje de ${msg.nombre ?? "Alguien"}`, {
             description: "Revisá la bandeja de contacto.",
             duration: 6000,
           })
           window.dispatchEvent(
-            new CustomEvent("contacto:nuevo-mensaje", { detail: msg })
+            new CustomEvent<ContactoMensajeRow>("contacto:nuevo-mensaje", { detail: msg })
           )
           routerRef.current.refresh()
         }
