@@ -15,7 +15,6 @@ export function ContactoRealtimeNotifier() {
 
   useEffect(() => {
     const supabase = createClient()
-    console.log("[Realtime] Iniciando suscripción a contacto_mensajes")
 
     // Inyectar el JWT del usuario autenticado en la conexión Realtime.
     // Sin esto, el servidor Realtime aplica RLS con rol anon y bloquea los eventos
@@ -32,7 +31,6 @@ export function ContactoRealtimeNotifier() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "contacto_mensajes" },
         (payload: { new: ContactoMensajeRow }) => {
-          console.log("[Realtime] INSERT recibido:", payload.new)
           const msg = payload.new
           toast.info(`Nuevo mensaje de ${msg.nombre ?? "Alguien"}`, {
             description: "Revisá la bandeja de contacto.",
@@ -44,9 +42,7 @@ export function ContactoRealtimeNotifier() {
           routerRef.current.refresh()
         }
       )
-      .subscribe((status, err) => {
-        console.log("[Realtime] Estado del canal:", status, err ?? "")
-      })
+      .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [])

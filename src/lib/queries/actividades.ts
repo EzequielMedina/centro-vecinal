@@ -65,7 +65,7 @@ export async function countActividadesProximas(): Promise<number> {
     .gte("fecha_inicio", new Date().toISOString())
   if (error) {
     console.error("[countActividadesProximas]", error.message)
-    return 0
+    throw new Error("Error al contar las próximas actividades")
   }
   return count ?? 0
 }

@@ -74,7 +74,7 @@ export async function countAvisosActivos(): Promise<number> {
     .eq("activo", true)
   if (error) {
     console.error("[countAvisosActivos]", error.message)
-    return 0
+    throw new Error("Error al contar los avisos activos")
   }
   return count ?? 0
 }

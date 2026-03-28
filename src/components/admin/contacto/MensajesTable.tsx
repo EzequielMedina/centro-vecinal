@@ -18,7 +18,6 @@ export function MensajesTable({ mensajes }: Props) {
     const handler = (e: Event) => {
       const msg = (e as CustomEvent<ContactoMensaje>).detail
       setNuevos((prev) => {
-        // Evitar duplicados si ya está en la lista
         if (prev.some((m) => m.id === msg.id)) return prev
         return [msg, ...prev]
       })
@@ -26,6 +25,11 @@ export function MensajesTable({ mensajes }: Props) {
     window.addEventListener("contacto:nuevo-mensaje", handler)
     return () => window.removeEventListener("contacto:nuevo-mensaje", handler)
   }, [])
+
+  // Podar "nuevos" cuando el servidor ya los incluye en mensajes (post-refresh)
+  useEffect(() => {
+    setNuevos((prev) => prev.filter((nm) => !mensajes.some((m) => m.id === nm.id)))
+  }, [mensajes])
 
   // Los mensajes del servidor ya incluyen los nuevos una vez que router.refresh() completa.
   // Filtramos "nuevos" para evitar duplicados con la lista del servidor.

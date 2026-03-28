@@ -83,7 +83,7 @@ export function AdminSidebar({ unreadContacto = 0 }: { unreadContacto?: number }
           >
             <Icon size={17} />
             {label}
-            {href === "/admin/contacto" && <UnreadBadge count={totalUnread} />}
+            {href === "/admin/contacto" && <UnreadBadge hasUnread={totalUnread > 0} />}
           </Link>
         ))}
 

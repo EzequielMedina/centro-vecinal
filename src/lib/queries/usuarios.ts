@@ -12,7 +12,7 @@ export async function countAdminUsers(): Promise<number> {
     .select("*", { count: "exact", head: true })
   if (error) {
     console.error("[countAdminUsers]", error.message)
-    return 0
+    throw new Error("Error al contar usuarios admin")
   }
   return count ?? 0
 }
