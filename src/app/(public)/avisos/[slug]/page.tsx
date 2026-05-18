@@ -3,7 +3,8 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
 import { ChevronLeft, CalendarDays } from "lucide-react"
-import { getAvisoBySlug, getAvisos } from "@/lib/queries/avisos"
+import { getAvisoBySlug } from "@/lib/queries/avisos"
+import { createBuildClient } from "@/lib/supabase/build"
 import { stripHtml, truncate } from "@/lib/utils/stripHtml"
 
 type Props = {
@@ -13,8 +14,14 @@ type Props = {
 export const revalidate = 30
 
 export async function generateStaticParams() {
-  const avisos = await getAvisos()
-  return avisos.slice(0, 10).map((a) => ({ slug: a.slug }))
+  const supabase = createBuildClient()
+  const { data } = await supabase
+    .from("avisos")
+    .select("slug")
+    .eq("activo", true)
+    .order("created_at", { ascending: false })
+    .limit(10)
+  return (data ?? []).map((a) => ({ slug: a.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
