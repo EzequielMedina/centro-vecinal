@@ -1,0 +1,476 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  public: {
+    Tables: {
+      actividades: {
+        Row: {
+          activa: boolean
+          autor_id: string | null
+          capacidad: number | null
+          categoria: string
+          created_at: string
+          descripcion: string
+          fecha_fin: string | null
+          fecha_inicio: string
+          id: string
+          imagen_url: string | null
+          slug: string
+          titulo: string
+          ubicacion: string
+          updated_at: string
+        }
+        Insert: {
+          activa?: boolean
+          autor_id?: string | null
+          capacidad?: number | null
+          categoria: string
+          created_at?: string
+          descripcion: string
+          fecha_fin?: string | null
+          fecha_inicio: string
+          id?: string
+          imagen_url?: string | null
+          slug: string
+          titulo: string
+          ubicacion?: string
+          updated_at?: string
+        }
+        Update: {
+          activa?: boolean
+          autor_id?: string | null
+          capacidad?: number | null
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          imagen_url?: string | null
+          slug?: string
+          titulo?: string
+          ubicacion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nombre: string
+          rol: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          nombre: string
+          rol?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nombre?: string
+          rol?: string
+        }
+        Relationships: []
+      }
+      avisos: {
+        Row: {
+          activo: boolean
+          contenido: string
+          created_at: string
+          destacado: boolean
+          id: string
+          imagen_url: string | null
+          slug: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          contenido: string
+          created_at?: string
+          destacado?: boolean
+          id?: string
+          imagen_url?: string | null
+          slug: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          contenido?: string
+          created_at?: string
+          destacado?: boolean
+          id?: string
+          imagen_url?: string | null
+          slug?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contacto_mensajes: {
+        Row: {
+          asunto: string
+          created_at: string
+          email: string
+          id: string
+          ip: string | null
+          leido: boolean
+          mensaje: string
+          nombre: string
+        }
+        Insert: {
+          asunto: string
+          created_at?: string
+          email: string
+          id?: string
+          ip?: string | null
+          leido?: boolean
+          mensaje: string
+          nombre: string
+        }
+        Update: {
+          asunto?: string
+          created_at?: string
+          email?: string
+          id?: string
+          ip?: string | null
+          leido?: boolean
+          mensaje?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      contenido_institucional: {
+        Row: {
+          contenido: string
+          id: string
+          seccion: string
+          updated_at: string
+        }
+        Insert: {
+          contenido?: string
+          id?: string
+          seccion: string
+          updated_at?: string
+        }
+        Update: {
+          contenido?: string
+          id?: string
+          seccion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      equipo_miembros: {
+        Row: {
+          activo: boolean
+          cargo: string
+          created_at: string
+          foto_url: string | null
+          id: string
+          nombre: string
+          orden: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          cargo: string
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nombre: string
+          orden?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          cargo?: string
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nombre?: string
+          orden?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      galeria: {
+        Row: {
+          categoria: string
+          created_at: string
+          descripcion: string
+          id: string
+          orden: number
+          titulo: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          id?: string
+          orden?: number
+          titulo?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          descripcion?: string
+          id?: string
+          orden?: number
+          titulo?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      rate_limit: {
+        Row: {
+          count: number
+          ip: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          ip: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          ip?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      servicios: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string
+          icono: string
+          id: string
+          nombre: string
+          orden: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string
+          icono?: string
+          id?: string
+          nombre: string
+          orden?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string
+          icono?: string
+          id?: string
+          nombre?: string
+          orden?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      check_rate_limit: {
+        Args: {
+          ip_address: string
+          max_intentos?: number
+          ventana_minutos?: number
+        }
+        Returns: boolean
+      }
+      insert_servicio_with_orden: {
+        Args: {
+          p_activo: boolean
+          p_descripcion: string
+          p_icono: string
+          p_nombre: string
+        }
+        Returns: string
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {},
+  },
+} as const
+

@@ -459,11 +459,12 @@ if (error) {
 El flujo de trabajo tiene tres niveles de branches:
 
 ```
-main
- └── 001-autenticacion-admin          ← branch de feature (del spec)
-      ├── task/001-T007-middleware     ← branch de task
-      ├── task/001-T012-login-page     ← branch de task
-      └── task/001-T020-layout-admin  ← branch de task
+main                                   ← producción
+ └── develop                           ← integración
+      └── 001-autenticacion-admin      ← branch de feature (del spec)
+           ├── task/001-T007-middleware     ← branch de task
+           ├── task/001-T012-login-page     ← branch de task
+           └── task/001-T020-layout-admin   ← branch de task
 ```
 
 #### Regla: una task = una branch = un PR hacia la feature branch
@@ -504,9 +505,9 @@ git push origin 001-autenticacion-admin
 git branch -d task/001-T007-middleware
 ```
 
-**Al completar TODA la feature**, abrir PR de la feature branch hacia `main`:
+**Al completar TODA la feature**, abrir PR de la feature branch hacia `develop`:
 ```bash
-gh pr create --base main --head 001-autenticacion-admin \
+gh pr create --base develop --head 001-autenticacion-admin \
   --title "feat: autenticación de administradores" \
   --body "Implementa login, middleware de protección, logout y gestión de usuarios admin."
 ```
@@ -529,6 +530,41 @@ chore(deps): instalar @tiptap/react y extensiones
 - Nunca hacer `git push --force` a `main`.
 - Nunca trabajar directamente en `main`.
 - Commits pequeños y atómicos: un commit por task completada.
+
+---
+
+## 13. Migraciones de Supabase — Reglas críticas
+
+### Nunca modificar migraciones ya aplicadas
+
+Una vez que una migración fue aplicada (local o en producción), **no se modifica**. Cualquier cambio de esquema va en un archivo nuevo:
+
+```bash
+# Crear nueva migración
+supabase migration new nombre-descriptivo
+# Genera: supabase/migrations/YYYYMMDDHHMMSS_nombre-descriptivo.sql
+```
+
+### Aplicar migraciones sin perder datos
+
+```bash
+# Aplica solo las migraciones nuevas — NO borra datos
+supabase migration up
+```
+
+### `supabase db reset` — cuándo usarlo y cuándo NO
+
+| Comando | Efecto sobre datos | Cuándo usarlo |
+|---------|-------------------|---------------|
+| `npm run dev` | Ninguno | Siempre para reiniciar el servidor |
+| `supabase migration up` | Ninguno | Para aplicar migraciones nuevas |
+| `supabase db reset` | **Borra todo y re-seedea** | Solo en dev cuando algo está roto o hay conflictos irresolubles |
+
+`supabase db reset` **elimina todos los datos** y replay todas las migraciones + seed desde cero. Usar solo como último recurso en desarrollo.
+
+### Datos de prueba persistentes
+
+Si un dato de prueba debe sobrevivir a un `db reset`, agregarlo a `supabase/seed.sql`. Los datos creados desde la UI no persisten ante un reset.
 
 ---
 
