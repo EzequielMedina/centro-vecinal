@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
@@ -10,7 +11,34 @@ import type { ContactoMensaje } from "@/lib/queries/contacto"
 type Props = { mensajes: ContactoMensaje[] }
 
 export function MensajesTable({ mensajes }: Props) {
-  if (mensajes.length === 0) {
+  // Mensajes nuevos recibidos por Realtime antes de que el servidor actualice
+  const [nuevos, setNuevos] = useState<ContactoMensaje[]>([])
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const msg = (e as CustomEvent<ContactoMensaje>).detail
+      setNuevos((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev
+        return [msg, ...prev]
+      })
+    }
+    window.addEventListener("contacto:nuevo-mensaje", handler)
+    return () => window.removeEventListener("contacto:nuevo-mensaje", handler)
+  }, [])
+
+  // Podar "nuevos" cuando el servidor ya los incluye en mensajes (post-refresh)
+  useEffect(() => {
+    setNuevos((prev) => prev.filter((nm) => !mensajes.some((m) => m.id === nm.id)))
+  }, [mensajes])
+
+  // Los mensajes del servidor ya incluyen los nuevos una vez que router.refresh() completa.
+  // Filtramos "nuevos" para evitar duplicados con la lista del servidor.
+  const displayed = [
+    ...nuevos.filter((nm) => !mensajes.some((m) => m.id === nm.id)),
+    ...mensajes,
+  ]
+
+  if (displayed.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-10">
         No hay mensajes todavía.
@@ -20,7 +48,7 @@ export function MensajesTable({ mensajes }: Props) {
 
   return (
     <div className="divide-y rounded-xl border overflow-hidden">
-      {mensajes.map((m) => (
+      {displayed.map((m) => (
         <Link
           key={m.id}
           href={`/admin/contacto/${m.id}`}

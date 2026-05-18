@@ -5,6 +5,18 @@ import type { Database } from "@/types/supabase"
 export type AdminUser =
   Database["public"]["Tables"]["admin_users"]["Row"]
 
+export async function countAdminUsers(): Promise<number> {
+  const supabase = createAdminClient()
+  const { count, error } = await supabase
+    .from("admin_users")
+    .select("*", { count: "exact", head: true })
+  if (error) {
+    console.error("[countAdminUsers]", error.message)
+    throw new Error("Error al contar usuarios admin")
+  }
+  return count ?? 0
+}
+
 export async function getAdminUsers(): Promise<AdminUser[]> {
   // Usa service_role para bypassear RLS y ver todos los usuarios
   const supabase = createAdminClient()

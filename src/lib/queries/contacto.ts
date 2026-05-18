@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { Database } from "@/types/supabase"
 
@@ -6,6 +7,7 @@ export type ContactoMensaje = Database["public"]["Tables"]["contacto_mensajes"][
 const PAGE_SIZE = 20
 
 export async function getMensajes(page = 1): Promise<{ mensajes: ContactoMensaje[]; total: number }> {
+  noStore()
   const supabase = await createClient()
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -41,6 +43,7 @@ export async function getMensajeById(id: string): Promise<ContactoMensaje | null
 }
 
 export async function countUnread(): Promise<number> {
+  noStore()
   const supabase = await createClient()
   const { count, error } = await supabase
     .from("contacto_mensajes")

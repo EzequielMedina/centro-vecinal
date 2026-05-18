@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminSidebar } from "@/components/admin/layout/AdminSidebar"
 import { AdminNavbar } from "@/components/admin/layout/AdminNavbar"
+import { Toaster } from "@/components/ui/sonner"
+import { ContactoRealtimeNotifier } from "@/components/admin/contacto/ContactoRealtimeNotifier"
 import { countUnread } from "@/lib/queries/contacto"
 
 export default async function AdminLayout({
@@ -35,6 +37,8 @@ export default async function AdminLayout({
         <AdminNavbar nombre={nombre} />
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
+      <ContactoRealtimeNotifier />
+      <Toaster position="bottom-right" />
     </div>
   )
 }

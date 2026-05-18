@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { updateSession } from "@/lib/supabase/middleware"
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
 
   const { pathname } = request.nextUrl
@@ -25,6 +25,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Solo ejecutar el middleware en rutas del panel admin
+  // Solo ejecutar el proxy en rutas del panel admin
   matcher: ["/admin/:path*"],
 }
