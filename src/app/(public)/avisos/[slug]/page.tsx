@@ -14,6 +14,7 @@ type Props = {
 export const revalidate = 30
 
 export async function generateStaticParams() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return []
   const supabase = createBuildClient()
   const { data } = await supabase
     .from("avisos")
