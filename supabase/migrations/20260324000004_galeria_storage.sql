@@ -7,9 +7,6 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('galeria', 'galeria', TRUE)
 ON CONFLICT (id) DO NOTHING;
 
--- Asegurar que RLS esté habilitado en storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
 -- Lectura pública solo para objetos del bucket 'galeria'
 CREATE POLICY "galeria_storage_select_public"
   ON storage.objects FOR SELECT
